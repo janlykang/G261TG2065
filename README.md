@@ -35,5 +35,5 @@
 ---
 
 ## 🧑‍🎓 開発者情報 / Developer Information
-- **学籍番号 (Student ID):** YOUR_STUDENT_ID *(←在这里写上你的学籍号)*
-- **氏名 (Name):** Kang Fu
+- **学籍番号 (Student ID):** G261TG2065 *
+- **氏名 (Name):** 康 夫 カン　フ
