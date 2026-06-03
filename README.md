@@ -3,8 +3,8 @@
 本プロジェクトは、AIプログラミングツールを活用して開発された、東京都全域の星空・天体観測をシミュレートするインタラクティブなWebアプリケーションです。
 
 ## 🌐 成果物リンク / Deployment URL
-- **GitHub Repository:** `https://github.com/YOUR_USERNAME/YOUR_REPO_NAME` *(←提交前请把这里改成你自己的GitHub链接)*
-- **GitHub Pages (Live Demo):** `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/` *(←如果你开启了Pages，把链接放这里，老师会非常高兴)*
+- **GitHub Repository:** `[https://github.com/YOUR_USERNAME/YOUR_REPO_NAME](https://github.com/janlykang/G261TG2065/blob/main/index.html)` 
+- **GitHub Pages (Live Demo):** `[https://YOUR_USERNAME.github.io/YOUR_REPO_NAME](https://janlykang.github.io/G261TG2065/)/` 
 
 ---
 
