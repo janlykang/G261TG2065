@@ -35,5 +35,5 @@
 ---
 
 ## 🧑‍🎓 開発者情報 / Developer Information
-- **学籍番号 (Student ID):** G261TG2065 *
+- **学籍番号 (Student ID):** G261TG2065 
 - **氏名 (Name):** 康 夫 カン　フ
