@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>東京都星空・天体観測ガイド | Tokyo Stargazing Guide</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom Styling & Animations -->
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      background-color: #060814;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3f51b5;
+    }
+    /* Spin Animation */
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 25s linear infinite;
+    }
+    /* Glow effect */
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+    }
+    .glow-purple {
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen relative overflow-x-hidden selection:bg-purple-600 selection:text-white">
+
+  <!-- Ambient Cosmic Orbs -->
+  <div class="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-indigo-950/20 via-purple-950/5 to-transparent pointer-events-none"></div>
+  <div class="absolute top-[15%] left-[5%] w-[350px] h-[350px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="absolute top-[55%] right-[2%] w-[450px] h-[450px] bg-cyan-950/10 rounded-full blur-[130px] pointer-events-none"></div>
+
+  <!-- Main Navigation Header -->
+  <header class="sticky top-0 z-40 bg-[#060814]/80 backdrop-blur-md border-b border-slate-800/60 px-4 py-3 md:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- App Identity Section -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 p-0.5 flex items-center justify-center animate-spin-slow">
+          <div class="w-full h-full bg-[#060814] rounded-full flex items-center justify-center">
+            <i data-lucide="compass" class="w-5 h-5 text-cyan-400"></i>
+          </div>
+        </div>
+        <div>
+          <h1 id="app-title" class="text-xl md:text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-50 via-slate-100 to-cyan-400">
+            東京都星空・天体観測ガイド
+          </h1>
+          <p id="app-subtitle" class="text-[10px] md:text-xs text-slate-400 font-medium">
+            都心（上野・新宿）から奥多摩、火山離島、小笠原まで網羅した完全版天体観測マップ
+          </p>
+        </div>
+      </div>
+
+      <!-- Control Suite -->
+      <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+        <!-- Observability Radar -->
+        <div class="hidden lg:flex items-center gap-2 bg-slate-900/60 border border-slate-800 rounded-full py-1 px-3 text-xs">
+          <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+          </span>
+          <span class="text-slate-400">Sky Quality Core:</span>
+          <span class="font-bold text-cyan-400">Live Calibration</span>
+        </div>
+
+        <!-- Language Selector -->
+        <div class="relative inline-block text-left">
+          <button id="lang-btn" class="group flex items-center gap-2 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 hover:from-purple-900/80 hover:to-indigo-900/80 border border-purple-500/30 rounded-full px-4 py-2 text-sm text-slate-100 transition-all duration-300 shadow-md">
+            <div class="relative w-5 h-5 flex items-center justify-center">
+              <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
+            </div>
+            <span id="active-lang-text" class="font-semibold text-xs md:text-sm tracking-wide">日本語</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          
+          <!-- Dropdown container -->
+          <div id="lang-dropdown" class="hidden absolute right-0 mt-2 w-40 bg-slate-900/95 backdrop-blur-lg border border-purple-900/50 rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-950 to-indigo-950 px-3 py-1.5 border-b border-purple-900/30">
+              <span class="text-[9px] font-bold text-purple-300 uppercase tracking-widest block">Language</span>
+            </div>
+            <ul class="py-1">
+              <li><button onclick="switchLanguage('ja')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-300 hover:bg-purple-600/20 hover:text-white transition-colors">日本語</button></li>
+              <li><button onclick="switchLanguage('zh')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-300 hover:bg-purple-600/20 hover:text-white transition-colors">简体中文</button></li>
+              <li><button onclick="switchLanguage('en')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-300 hover:bg-purple-600/20 hover:text-white transition-colors">English</button></li>
+              <li><button onclick="switchLanguage('ko')" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-300 hover:bg-purple-600/20 hover:text-white transition-colors">한국어</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main class="max-w-7xl mx-auto px-4 py-6 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-20">
+    
+    <!-- LEFT SIDEBAR: Controls & Map -->
+    <section class="col-span-1 lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- Brief info notice -->
+      <div class="bg-slate-900/55 backdrop-blur-md border border-slate-800/80 rounded-2xl p-4 flex gap-4 items-start shadow-xl">
+        <div class="bg-purple-950/50 border border-purple-500/20 p-2 rounded-xl text-purple-400">
+          <i data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p id="guide-intro" class="text-xs text-slate-300 leading-relaxed font-light">
+            東京都全域の星空環境を完全シミュレート。上野恩賜公園や新宿など、光害の激しい都心部で「今、実際に見える明るい星」から、奥多摩・小笠原の極限の暗闇までインタラクティブに体験できます。
+          </p>
+        </div>
+      </div>
+
+      <!-- Controls Panel Card -->
+      <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/90 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+        <h2 id="filter-spots-title" class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-cyan-400"></i>
+          スポットの絞り込み
+        </h2>
+
+        <!-- Season Selector -->
+        <div class="mb-5">
+          <label id="season-label" class="text-xs text-slate-400 block mb-2 font-semibold">観測季節</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button onclick="setSeason('spring')" id="btn-spring" class="season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-slate-800/50 hover:bg-slate-800 text-slate-400">
+              <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+              <span class="season-text" data-key="spring">春</span>
+            </button>
+            <button onclick="setSeason('summer')" id="btn-summer" class="season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-gradient-to-b from-purple-600 to-indigo-700 text-white shadow-lg border border-purple-400/20">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span class="season-text" data-key="summer">夏</span>
+            </button>
+            <button onclick="setSeason('autumn')" id="btn-autumn" class="season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-slate-800/50 hover:bg-slate-800 text-slate-400">
+              <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+              <span class="season-text" data-key="autumn">秋</span>
+            </button>
+            <button onclick="setSeason('winter')" id="btn-winter" class="season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-slate-800/50 hover:bg-slate-800 text-slate-400">
+              <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+              <span class="season-text" data-key="winter">冬</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Time Selector -->
+        <div class="mb-5">
+          <div class="flex justify-between items-center mb-1">
+            <label id="time-label" class="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
+              観測時間帯
+            </label>
+            <span id="time-display" class="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">午後 10 時</span>
+          </div>
+          <input id="time-slider" type="range" min="20" max="28" step="1" value="22" oninput="updateTime(this.value)" class="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1 px-1">
+            <span>20:00</span>
+            <span>22:00</span>
+            <span>00:00</span>
+            <span>02:00</span>
+            <span>04:00</span>
+          </div>
+        </div>
+
+        <!-- Light Pollution Tolerance Slider -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label id="pollution-label" class="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-3.5 h-3.5 text-purple-400"></i>
+              許容光害レベル上限 (Bortle)
+            </label>
+            <span id="bortle-display" class="text-xs font-mono font-bold text-purple-300 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-500/20">すべて表示</span>
+          </div>
+          <input id="pollution-slider" type="range" min="1" max="9" step="1" value="9" oninput="updatePollutionLimit(this.value)" class="w-full accent-purple-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[9px] text-slate-500 font-mono mt-1 px-1">
+            <span>Class 1 (暗闇)</span>
+            <span>Class 4 (郊外)</span>
+            <span>Class 7 (都市)</span>
+            <span>Class 9 (都心)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Visualizer Container -->
+      <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/90 rounded-2xl p-5 shadow-xl relative">
+        <div class="flex justify-between items-center mb-3">
+          <h3 id="map-view-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest">東京都全域星空行政マップ</h3>
+          <span class="text-[10px] font-mono font-bold bg-indigo-950 text-indigo-300 border border-indigo-800 rounded px-1.5 py-0.5">Vector Grid</span>
+        </div>
+
+        <!-- Tokyo Visual Board (Flexible layout) -->
+        <div class="w-full h-56 bg-[#04060f] rounded-xl border border-slate-800/80 relative overflow-hidden p-2">
+          <!-- Ambient pollution glow reflecting light slider -->
+          <div id="ambient-map-glow" class="absolute right-0 top-1/4 w-36 h-36 bg-orange-500/10 rounded-full blur-[40px] pointer-events-none transition-all duration-500"></div>
+          
+          <!-- Grid graphics -->
+          <svg class="absolute inset-0 w-full h-full opacity-10 pointer-events-none">
+            <line x1="20%" y1="10%" x2="50%" y2="40%" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="3 3"/>
+            <line x1="50%" y1="40%" x2="80%" y2="20%" stroke="#38bdf8" stroke-width="0.5" stroke-dasharray="3 3"/>
+            <circle cx="20%" cy="10%" r="2" fill="#38bdf8"/>
+            <circle cx="50%" cy="40%" r="2" fill="#38bdf8"/>
+            <circle cx="80%" cy="20%" r="3" fill="#38bdf8"/>
+          </svg>
+
+          <div id="mountains-label" class="absolute top-2 left-2 text-[8px] text-slate-500 max-w-[120px] leading-tight font-mono pointer-events-none z-10">🏔️ 西部奥多摩エリア (山々が都市の光害をブロック)</div>
+          <div id="city-glow-label" class="absolute bottom-2 right-2 text-[8px] text-slate-500 text-right max-w-[120px] leading-tight font-mono pointer-events-none z-10">🏢 東京都心・东京湾光害集中エリア</div>
+          
+          <!-- Inset Divider -->
+          <div class="absolute bottom-16 left-0 right-0 border-t border-slate-800/40 border-dashed pointer-events-none"></div>
+          <div id="islands-label" class="absolute bottom-12 left-2 text-[8px] text-purple-400 font-mono pointer-events-none">🌐 伊豆・小笠原諸島 (南へ最大1000kmにわたる島々)</div>
+
+          <!-- Dynamic Pins Container -->
+          <div id="map-pins-layer" class="absolute inset-0"></div>
+        </div>
+
+        <!-- Search input box -->
+        <div class="relative mt-4">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+          <input id="search-input" type="text" oninput="handleSearch(this.value)" placeholder="「上野」「新宿」「奥多摩」など地名を入力して検索..." class="w-full text-xs bg-[#0b0f20] border border-slate-800 rounded-xl py-2 pl-9 pr-8 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-colors">
+          <button onclick="clearSearch()" class="absolute right-3 top-2.5 text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtered List Panel -->
+      <div class="flex flex-col gap-3">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
+          <span id="list-header-text">東京都の全観測エリア一覧</span> (<span id="spots-count">0</span>)
+        </h3>
+        
+        <div id="spots-list" class="flex flex-col gap-2.5 max-h-[340px] overflow-y-auto pr-1">
+          <!-- Dynamic injected spots -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT CONTENT AREA: Rotating Star Simulator & Details Card -->
+    <section class="col-span-1 lg:col-span-7 flex flex-col gap-6">
+
+      <!-- CELESTIAL SIMULATOR CORE -->
+      <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/95 rounded-2xl p-5 shadow-2xl relative overflow-hidden flex flex-col">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-cyan-400 to-purple-600"></div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
+          <div>
+            <h2 id="sim-title" class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>
+              リアルタイム星空シミュレーター
+            </h2>
+            <p id="sim-guide-desc" class="text-[10px] text-slate-400 mt-0.5">
+              時間スライダーを動かすと星空が回転します。ボートル値に応じて、都心では見えない暗い星が自動的に減光・消去されます。
+            </p>
+          </div>
+          <!-- Calibration Status Badge -->
+          <div id="sim-status-badge" class="bg-cyan-950/40 text-cyan-300 border border-cyan-800/50 rounded-lg px-2.5 py-1 text-xs font-mono font-bold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping"></span>
+            <span id="badge-location-name">上野恩賜公園</span>
+          </div>
+        </div>
+
+        <!-- SKY VISUAL CANVAS BOX -->
+        <div class="relative w-full aspect-square md:max-h-[460px] mx-auto bg-gradient-to-b from-[#030514] via-[#050920] to-[#010208] rounded-full border border-slate-800 shadow-2xl shadow-black overflow-hidden flex items-center justify-center p-4">
+          
+          <!-- Cloud gas nebula simulation (glowing background, disappears in heavy pollution) -->
+          <div id="sim-nebula" class="absolute inset-0 bg-radial-gradient from-transparent via-[#252875]/20 to-transparent mix-blend-screen pointer-events-none transition-opacity duration-700"></div>
+          
+          <!-- Background coordinate rings -->
+          <div class="absolute inset-8 border border-slate-800/10 rounded-full pointer-events-none"></div>
+          <div class="absolute inset-20 border border-slate-800/10 rounded-full pointer-events-none"></div>
+          <div class="absolute inset-32 border border-slate-800/10 rounded-full pointer-events-none"></div>
+          <div class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 border-l border-slate-800/5 pointer-events-none"></div>
+          <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t border-slate-800/5 pointer-events-none"></div>
+
+          <!-- Rotating star sky wrapper -->
+          <div id="sky-rotation-dome" class="absolute inset-0 transition-transform duration-300 ease-out">
+            <!-- Constellation SVG links will be drawn dynamically -->
+            <svg id="sky-svg-lines" class="absolute inset-0 w-full h-full pointer-events-none"></svg>
+            
+            <!-- Stars dynamic buttons wrapper -->
+            <div id="sky-stars-layer" class="absolute inset-0"></div>
+          </div>
+
+          <!-- Cardinal compass directions labels -->
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 text-xs font-mono font-bold text-red-500 tracking-wider">N</div>
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-mono font-bold text-slate-400 tracking-wider">S</div>
+          <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400 tracking-wider">E</div>
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400 tracking-wider">W</div>
+
+          <!-- Bottom horizon gradient layout mask -->
+          <div class="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#060814] to-transparent pointer-events-none"></div>
+        </div>
+
+        <!-- Light pollution alert banner -->
+        <div id="city-pollution-warning" class="hidden mt-3 p-3 bg-orange-950/20 border border-orange-900/30 rounded-xl flex items-start gap-2.5">
+          <i data-lucide="alert-circle" class="w-4 h-4 text-orange-400 shrink-0 mt-0.5"></i>
+          <p id="city-warning-text" class="text-[10px] text-orange-300 leading-relaxed font-light">
+            【都心光害警報】この地点は光害が激しいため、シミュレーター上の暗い星は非表示になっています。一等星や月、木星などの惑星を探しましょう。
+          </p>
+        </div>
+
+        <!-- Celestial star details card slot -->
+        <div id="star-focus-box" class="mt-4 p-4 bg-slate-950/80 border border-slate-800 rounded-xl">
+          <p id="click-to-explore-desc" class="text-xs text-slate-400 leading-relaxed flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-purple-400 animate-pulse"></i>
+            星座や恒星をクリックするとシミュレーターでロックオンされ、詳細情報が表示されます
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Season Constellations Deck -->
+      <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+        <h3 id="constellation-header-title" class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
+          今シーズンの見どころ星座 (クリックで連動)
+        </h3>
+        <div id="constellation-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Dynamic seasonal constellations loaded here -->
+        </div>
+      </div>
+
+      <!-- Comprehensive Spot Profile Summary Sheet -->
+      <div id="spot-detail-card" class="bg-slate-900/60 backdrop-blur-md border border-slate-800/90 rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-all duration-350">
+        
+        <!-- Header spot identity title line -->
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-cyan-950 flex items-center justify-center border border-cyan-800/30">
+              <i data-lucide="navigation" class="w-5 h-5 text-cyan-400"></i>
+            </div>
+            <div>
+              <span id="active-spot-lbl" class="text-[10px] uppercase font-mono font-semibold tracking-wider text-purple-400 block">現在選択中の観測地・エリア</span>
+              <h3 id="detail-spot-name" class="text-lg font-black text-slate-50">上野恩賜公園</h3>
+            </div>
+          </div>
+          <div class="text-right">
+            <span id="detail-bortle-class" class="text-xs font-mono font-bold bg-orange-950/50 text-orange-400 border border-orange-800/60 px-2.5 py-0.5 rounded-full">ボートル級 8</span>
+          </div>
+        </div>
+
+        <!-- Description body -->
+        <p id="detail-spot-desc" class="text-xs md:text-sm text-slate-300 leading-relaxed font-light mb-6">
+          上野公園は台東区に位置する広大な文化の森です。都心の強い光害（ボートル8）がありますが、大噴水広場や寛永寺周辺の木陰に入り直接の街灯を遮ることで、オリオン座や冬の大三角、夏の大三角、月、木星・土星などの惑星が驚くほどくっきりと観測できます。都内屈指の身近な星空スポットです。
+        </p>
+
+        <!-- Dynamic Specs Table -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-950/60 border border-slate-850 p-4 rounded-xl mb-6">
+          <div>
+            <span class="detail-label-text text-[10px] text-slate-500 block uppercase font-semibold mb-0.5" data-key="altitude">標高 / 高度</span>
+            <span id="detail-altitude" class="text-xs font-bold text-slate-200 font-mono">15m</span>
+          </div>
+          <div>
+            <span class="detail-label-text text-[10px] text-slate-500 block uppercase font-semibold mb-0.5" data-key="distance">新宿からの距離</span>
+            <span id="detail-distance" class="text-xs font-bold text-slate-200 font-mono">7.5km</span>
+          </div>
+          <div>
+            <span class="detail-label-text text-[10px] text-slate-500 block uppercase font-semibold mb-0.5" data-key="bestSeason">最適な季節</span>
+            <span id="detail-best-season" class="text-xs font-bold text-cyan-400 uppercase tracking-wider">冬</span>
+          </div>
+          <div>
+            <span class="detail-label-text text-[10px] text-slate-500 block uppercase font-semibold mb-0.5" data-key="coordinates">地理座標</span>
+            <span id="detail-coords" class="text-xs font-bold text-slate-200 font-mono">35.7154° N, 139.7741° E</span>
+          </div>
+        </div>
+
+        <!-- Pro travel tips area -->
+        <div class="p-4 bg-purple-950/15 border border-purple-900/40 rounded-xl">
+          <h4 id="travel-tips-heading" class="text-xs font-bold text-purple-300 mb-2 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-4 h-4 text-purple-300"></i>
+            このエリアでの星空観測アドバイス
+          </h4>
+          <p id="detail-spot-tip" class="text-xs text-slate-300 leading-relaxed font-light">
+            夜間の大噴水前広場は比較的視野が開けており、余計な街灯を避けやすいためお勧めです。午後11時を過ぎて周囲のビル明かりが減少すると、星の視認性が向上します。
+          </p>
+        </div>
+
+        <!-- Filter blocker mask inside spot profile if level exceeds slider setting -->
+        <div id="spot-filter-blocker" class="hidden absolute inset-0 bg-[#060814]/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 z-30">
+          <i data-lucide="alert-circle" class="w-10 h-10 text-purple-400 mb-3 animate-pulse"></i>
+          <h4 id="spot-blocked-title" class="text-sm font-bold text-slate-200 mb-1">表示が制限されています</h4>
+          <p id="spot-blocked-desc" class="text-xs text-slate-400 max-w-[280px]">
+            光害制限フィルターにより非表示になっています。左側の許容レベルを上げてください。
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Global bottom footer structure -->
+  <footer class="border-t border-slate-900 bg-slate-950/80 py-8 px-4 text-center text-xs text-slate-500 mt-20 relative z-30">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <p id="footer-copyright" class="font-light">
+        © 2026 東京都星空・天体観測ガイド • 東京都心の光害から島嶼部のダークスカイまで網羅
+      </p>
+      <div class="flex gap-4 font-mono">
+        <span>Tokyo JST (GMT+9)</span>
+        <span>•</span>
+        <span>Bortle Standard Compliant</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript App Logic -->
+  <script>
+    // ==========================================
+    // TRANSLATIONS DICTIONARY DATABASE (i18n)
+    // ==========================================
+    const translations = {
+      ja: {
+        appTitle: "東京都星空・天体観測ガイド",
+        appSubtitle: "都心（上野・新宿）から奥多摩、火山離島、小笠原まで網羅した完全版天体観測マップ",
+        season: "観測季節",
+        spring: "春",
+        summer: "夏",
+        autumn: "秋",
+        winter: "冬",
+        timeOfNight: "観測時間帯",
+        lightPollutionLevel: "許容光害レベル上限 (Bortle)",
+        bortleTitle: "ボートル・スケール (Bortle Scale)",
+        allLevels: "すべて表示",
+        filterSpots: "スポットの絞り込み",
+        altitude: "標高 / 高度",
+        distance: "新宿からの距離",
+        bestSeason: "最適な季節",
+        lightPollutionLabel: "光害階級",
+        viewWiki: "Wikipedia で調べる",
+        travelTipTitle: "このエリアでの星空観測アドバイス",
+        spotsHeader: "東京都の全観測エリア一覧",
+        constellationsHeader: "今シーズンの見どころ星座 (クリックで連動)",
+        clickToExplore: "星座や恒星をクリックするとシミュレーターでロックオンされ、詳細情報が表示されます",
+        detailsButton: "詳細ガイドを見る",
+        closeDetails: "閉じる",
+        exploreMore: "Wikipediaでさらに詳しく",
+        bortleScaleDesc: "数値が低いほど夜空が暗く、天の川がきれいに見えます。都心（ボートル8〜9）では一等星と月・惑星のみが観測可能です。",
+        weatherForecast: "おすすめ度",
+        ratingPerfect: "極限の暗闇 (満天の星と銀河を完備)",
+        ratingGreat: "卓越した暗夜 (星雲まで肉眼で観測可)",
+        ratingGood: "良好 (天の川がうっすら見えるレベル)",
+        ratingFair: "普通 (山間部・郊外の標準的な星空)",
+        ratingCityLight: "都市型星空 (一等星・惑星・月のみ観測可能)",
+        ratingHeavyPollution: "極度の光害 (最輝星のみ観測可能、要遮光)",
+        hoursPM: "午後 {h} 時",
+        hoursAM: "午前 {h} 時",
+        activeSpotLabel: "現在選択中の観測地・エリア",
+        noSpotSelected: "マップまたは下のリストからスポットを選択してください...",
+        stargazingClarity: "大気透過率 (予測)",
+        interactiveSimulator: "リアルタイム星空シミュレーター",
+        guideIntro: "東京都全域の星空環境を完全シミュレート。上野恩賜公園や新宿など、光害の激しい都心部で「今、実際に見える明るい星」から、奥多摩・小笠原の極限の暗闇までインタラクティブに体験できます。",
+        searchPlaceholder: "「上野」「新宿」「奥多摩」など地名を入力して検索...",
+        skyViewerInstructions: "時間スライダーを動かすと星空が回転します。ボートル値に応じて、都心では見えない暗い星が自動的に減光・消去されます。",
+        coordinates: "地理座標",
+        bortleLevel: "ボートル級",
+        starName: "恒星 / 天体名",
+        constellation: "星座",
+        distanceLy: "光年距離",
+        simulatedView: "望遠鏡視野シミュレーション",
+        tips: "ワンポイントアドバイス",
+        mapView: "東京都全域星空行政マップ",
+        islandInsetText: "伊豆・小笠原諸島 (南へ最大1000kmにわたる島々)",
+        tokyoBayGlow: "東京都心・東京湾光害集中エリア (新宿・渋谷)",
+        westernMountains: "西部奥多摩エリア (山々が都市の光害をブロック)",
+        bortle1: "クラス1：完全なダークスカイ",
+        bortle2: "クラス2：典型的な真のダークスカイ",
+        bortle3: "クラス3：田舎の空",
+        bortle4: "クラス4：田舎と郊外的遷移地域",
+        highPollutionWarning: "光害制限フィルターにより非表示になっています。左側の許容レベルを上げてください。",
+        skySimCityWarning: "【都心光害警报】この地点は光害が激しいため、シミュレーター上の暗い星は非表示になっています。一等星や月、木星などの惑星を探しましょう。",
+        noSpotsFound: "条件に合う場所が見つかりません。",
+        copyright: "© 2026 東京都星空・天体観測ガイド • 東京都心の光害から島嶼部のダークスカイまで網羅"
+      },
+      zh: {
+        appTitle: "东京都观星与天体观测指南",
+        appSubtitle: "涵盖东京都心（上野、新宿）到奥多摩、火山外岛、小笠原群岛的完整暗夜地图",
+        season: "观测季节",
+        spring: "春季",
+        summer: "夏季",
+        autumn: "秋季",
+        winter: "冬季",
+        timeOfNight: "观测时间",
+        lightPollutionLevel: "允许光污染上限限制 (Bortle)",
+        bortleTitle: "波特尔暗夜分类 (Bortle Scale)",
+        allLevels: "显示全部",
+        filterSpots: "筛选观测地点",
+        altitude: "海拔高度 / 地面高度",
+        distance: "距离新宿",
+        bestSeason: "最佳观星季节",
+        lightPollutionLabel: "光污染评级",
+        viewWiki: "在中文维基百科中查看",
+        travelTipTitle: "该区域星空观测指南",
+        spotsHeader: "东京都全域推荐观测点",
+        constellationsHeader: "当季瞩目星座 (点击互动)",
+        clickToExplore: "点击下方星座或天体，在模拟器中锁定它并查阅维基百科",
+        detailsButton: "查看详尽指南",
+        closeDetails: "关闭详情",
+        exploreMore: "前往维基百科探索",
+        bortleScaleDesc: "波特尔数值越低，天空越暗，银河越耀眼。都心（ボートル8〜9）仅剩极少数最亮恒星可见。",
+        weatherForecast: "推荐观测指数",
+        ratingPerfect: "极度暗夜 (满天繁星与银河气辉清晰可见)",
+        ratingGreat: "卓越暗空 (星团星云可见)",
+        ratingGood: "良好 (天之川隐约可见)",
+        ratingFair: "一般 (市郊边缘避光处)",
+        ratingCityLight: "城市星空 (一等亮星与月球、行星可见)",
+        ratingHeavyPollution: "重度光污染 (仅可见最亮天体，需寻找遮光处)",
+        hoursPM: "晚上 {h} 点",
+        hoursAM: "凌晨 {h} 点",
+        activeSpotLabel: "当前聚焦地点/区域",
+        noSpotSelected: "请在地图或下方列表中选择一个观测点...",
+        stargazingClarity: "大气清晰度预测",
+        interactiveSimulator: "实时星空模拟器",
+        guideIntro: "完整模拟东京都各区域的星空环境。从上野恩赐公园、新宿等重光害市区“今夜实际能看到哪些亮星”，到奥多摩、小笠原的纯净暗夜，均可交互式体验。",
+        searchPlaceholder: "「上野」「新宿」「奥多摩」等输入地名进行搜索...",
+        skyViewerInstructions: "拖动时间轴星空随之旋转。模拟器根据所选地点光害值，自动减弱并隐藏无法看到的暗星。",
+        coordinates: "地理坐标",
+        bortleLevel: "波特尔级",
+        starName: "恒星/星体",
+        constellation: "所属星座",
+        distanceLy: "光年距离",
+        simulatedView: "望远镜模拟视场",
+        tips: "行前贴士",
+        mapView: "东京都行政星空地图",
+        islandInsetText: "伊豆/小笠原群岛 (向南延伸1000公里)",
+        tokyoBayGlow: "东京市区强光污染区 (新宿・涩谷・东京湾)",
+        westernMountains: "西部奥多摩山地 (天然屏障遮挡城市灯光)",
+        bortle1: "1级：绝佳黑暗天空",
+        bortle2: "2级：典型的真正黑暗天空",
+        bortle3: "3级：乡村天空",
+        bortle4: "4级：乡村/郊区过渡区",
+        highPollutionWarning: "光污染限制较严，该地点暂时被隐藏。请在左侧调大光污染上限。",
+        skySimCityWarning: "【都市光害警报】此地点光害极其严重，模拟器已自动隐藏弱星。请寻找一等星、月球或木星等行星。",
+        noSpotsFound: "没有找到符合条件的地点。",
+        copyright: "© 2026 东京都星空与天体观测指南 • 覆盖都市重污染到深空离岛的专业暗空数据库"
+      },
+      en: {
+        appTitle: "Tokyo Celestial Stargazing Map",
+        appSubtitle: "Comprehensive Guide covering Tokyo urban core (Ueno, Shinjuku) to Okutama mountains and remote islands",
+        season: "Observation Season",
+        spring: "Spring",
+        summer: "Summer",
+        autumn: "Autumn",
+        winter: "Winter",
+        timeOfNight: "Observation Time",
+        lightPollutionLevel: "Max Light Pollution (Bortle)",
+        bortleTitle: "Bortle Dark-Sky Scale",
+        allLevels: "Show All",
+        filterSpots: "Filter Locations",
+        altitude: "Altitude",
+        distance: "Distance from Shinjuku",
+        bestSeason: "Best Season",
+        lightPollutionLabel: "Light Pollution",
+        viewWiki: "Read on Wikipedia",
+        travelTipTitle: "Stargazing Tips for This Spot",
+        spotsHeader: "Tokyo's Complete Stargazing Locations",
+        constellationsHeader: "Notable Constellations (Interactive)",
+        clickToExplore: "Click on any star or constellation to lock on and view localized info with dynamic Wikipedia links",
+        detailsButton: "View Detailed Guide",
+        closeDetails: "Close Details",
+        exploreMore: "Explore on Wikipedia",
+        bortleScaleDesc: "Lower Bortle values mean darker skies. In downtown Tokyo (Bortle 8-9), only 1st-magnitude stars, the Moon, and bright planets are visible.",
+        weatherForecast: "Viewing Rating",
+        ratingPerfect: "Excellent (Absolute dark, perfect for Milky Way)",
+        ratingGreat: "Outstanding (Nebulae visible to naked eye)",
+        ratingGood: "Good (Milky Way faintly visible)",
+        ratingFair: "Fair (Standard suburban mountain sky)",
+        ratingCityLight: "City Sky (Only planets, Moon, & bright stars visible)",
+        ratingHeavyPollution: "Severe Glow (Extreme light pollution, block direct light)",
+        hoursPM: "{h} PM",
+        hoursAM: "{h} AM",
+        activeSpotLabel: "Selected Location / Area",
+        noSpotSelected: "Select a stargazing spot from the map or list below...",
+        stargazingClarity: "Atmospheric Clarity (Forecast)",
+        interactiveSimulator: "Interactive Celestial Simulator",
+        guideIntro: "Fully simulates sky quality across Tokyo. Instantly compare what you can actually see in glowing cities like Ueno or Shinjuku with the stellar wilderness of Okutama or Ogasawara.",
+        searchPlaceholder: "Type 'Ueno', 'Shinjuku', 'Okutama' to search...",
+        skyViewerInstructions: "Drag the slider to orbit stars. Faint stars are dynamically dimmed or hidden according to the selected spot's Bortle rating.",
+        coordinates: "Coordinates",
+        bortleLevel: "Bortle Class",
+        starName: "Star Name",
+        constellation: "Constellation",
+        distanceLy: "Distance (Light Years)",
+        simulatedView: "Telescope Viewport",
+        tips: "Pro Travel Tip",
+        mapView: "Tokyo Admin Dark Sky Map",
+        islandInsetText: "Izu & Ogasawara Islands (Extending 1000km South)",
+        tokyoBayGlow: "Tokyo Urban Glow Zone",
+        westernMountains: "Okutama Mountain range blocking urban lights",
+        bortle1: "Class 1: Excellent Dark Sky",
+        bortle2: "Class 2: Typical Truly Dark Sky",
+        bortle3: "Class 3: Rural Sky",
+        bortle4: "Class 4: Rural/Suburban Transition",
+        highPollutionWarning: "Hidden due to light pollution filter. Slide the filter to the right to reveal.",
+        skySimCityWarning: "【City Light Alert】This area has high light pollution. Faint stars have been filtered out in the simulator. Look for 1st-magnitude stars like Sirius or Vega!",
+        noSpotsFound: "No spots matching criteria found.",
+        copyright: "© 2026 Tokyo Stargazing Guide • Comprehensive celestial map covering both extreme neon glow and dark preserves."
+      },
+      ko: {
+        appTitle: "도쿄도 별자리 및 천체 관측 지도",
+        appSubtitle: "도쿄 도심(우에노, 신주쿠)부터 오쿠타마 산악지대, 화산 섬, 오가사와라까지 망라한 관측 가이드",
+        season: "관측 계절",
+        spring: "봄",
+        summer: "여름",
+        autumn: "가을",
+        winter: "겨울",
+        timeOfNight: "관측 시간대",
+        lightPollutionLevel: "허용 빛공해 제한 (Bortle)",
+        bortleTitle: "보틀 밤하늘 등급 (Bortle Scale)",
+        allLevels: "전체 보기",
+        filterSpots: "장소 필터링",
+        altitude: "해발 고도 / 지상고",
+        distance: "신주쿠에서의 거리",
+        bestSeason: "최적의 계절",
+        lightPollutionLabel: "빛공해 수준",
+        viewWiki: "Wikipedia에서 보기",
+        travelTipTitle: "이 장소의 별자리 관측 팁",
+        spotsHeader: "도쿄도 전체 관측 장소 목록",
+        constellationsHeader: "이번 시즌 추천 별자리 (클릭 연동)",
+        clickToExplore: "별자리를 클릭하면 시뮬레이터에 타겟팅되며 해당하는 언어의 위키백과로 연결됩니다",
+        detailsButton: "상세 정보 보기",
+        closeDetails: "상세 닫기",
+        exploreMore: "Wikipedia에서 자세히 보기",
+        bortleScaleDesc: "보틀 수치가 낮을수록 밤하늘이 어둡습니다. 도심(보틀 8~9)에서는 1등급의 아주 밝은 별, 달, 행성만 볼 수 있습니다.",
+        weatherForecast: "관측 추천도",
+        ratingPerfect: "완벽한 어둠 (쏟아지는 은하수 관측 가능)",
+        ratingGreat: "매우 우수 (성운까지 육안 관측 가능)",
+        ratingGood: "좋음 (은하수가 희미하게 보이는 수준)",
+        ratingFair: "보통 (산간지대 및 외곽의 밤하늘)",
+        ratingCityLight: "도심형 밤하늘 (1등성, 행성, 달만 관측 가능)",
+        ratingHeavyPollution: "심한 빛공해 (가장 밝은 천체만 가능, 가림막 필요)",
+        hoursPM: "오후 {h} 시",
+        hoursAM: "오전 {h} 시",
+        activeSpotLabel: "현재 선택된 관측지/구역",
+        noSpotSelected: "지도나 목록에서 관측 장소를 선택해 주세요...",
+        stargazingClarity: "대기 투명도 (예측)",
+        interactiveSimulator: "실시간 밤하늘 시뮬레이터",
+        guideIntro: "도쿄도 전역의 별자리 환경을 완벽히 시뮬레이션합니다. 우에노 공원이나 신주쿠에서 '오늘 밤 실제로 보이는 별'부터 오쿠타마, 오가사와라의 청정 밤하늘까지 직접 대조하며 감상할 수 있습니다.",
+        searchPlaceholder: "'우에노', '신주쿠', '오쿠타마' 등 지명을 입력해 검색...",
+        skyViewerInstructions: "시간 슬라이더를 드래그하면 별들이 회전합니다. 도심 부근에서는 빛공해 정도에 따라 어두운 별들이 자동으로 숨겨집니다.",
+        coordinates: "지리적 좌표",
+        bortleLevel: "보틀 등급",
+        starName: "별/천체 이름",
+        constellation: "속한 별자리",
+        distanceLy: "광년 거리",
+        simulatedView: "망원경 가상 뷰",
+        tips: "행동 요령",
+        mapView: "도쿄도 행정 구역 밤하늘 지도",
+        islandInsetText: "이주/오가사와라 제도 (남쪽으로 최대 1000km 연장)",
+        tokyoBayGlow: "도쿄 도심 강한 빛공해 구역",
+        westernMountains: "서부 오쿠타마 산악 지대 (도심 광해를 막아주는 자연 장벽)",
+        bortle1: "Class 1: 밤하늘 본연의 완벽한 어둠",
+        bortle2: "Class 2: 전형적인 진짜 어두운 밤하늘",
+        bortle3: "Class 3: 시골의 밤하늘",
+        bortle4: "Class 4: 시골과 교외 사이 전이대",
+        highPollutionWarning: "빛공해 제한 필터에 의해 숨겨져 있습니다. 왼쪽 필터 한도를 높여주세요.",
+        skySimCityWarning: "【도심 빛공해 경보】이 지역은 빛공해가 심해 시뮬레이터의 어두운 별들이 가려집니다. 베가나 시리우스 같은 밝은 1등성을 찾아보세요.",
+        noSpotsFound: "조건에 맞는 장소가 없습니다.",
+        copyright: "© 2026 도쿄 별자리 가이드 • 도심 광해부터 청정 섬 구역까지 아우르는 전문 관측 안내서"
+      }
+    };
+
+    // ==========================================
+    // EXTENSIVE COMPREHENSIVE TOKYO DATASET
+    // ==========================================
+    const stargazingSpots = [
+      // 1. Urban Core (Bortle 8-9)
+      {
+        id: "ueno_park",
+        bortle: 8,
+        altitude: "15m",
+        distance: "7.5km",
+        bestSeasonKey: "winter",
+        coords: "35.7154° N, 139.7741° E",
+        ratingKey: "ratingCityLight",
+        name: {
+          zh: "上野恩赐公园 (台东区)",
+          ja: "上野恩賜公園 (台東区)",
+          en: "Ueno Park (Taito Ward)",
+          ko: "우에노 온시 공원 (타이토구)"
+        },
+        description: {
+          zh: "上野公园是东京最具代表性的城市绿地，虽然地处繁华的台东区，光害极强（Bortle 8），但在大喷泉广场或宽永寺旧址遮挡路灯后，仍可清晰观测到冬季大三角（天狼星、参宿四、南河三）、夏季大三角以及明亮的木星与土星。极其适合城市内轻度科普观测。",
+          ja: "上野公園は台東区に位置する広大な文化の森です。都心の強い光害（ボートル8）がありますが、大噴水広場や寛永寺周辺の木陰に入り直接の街灯を遮ることで、オリオン座や冬の大三角、夏の大三角、月、木星・土星などの惑星が驚くほどくっきりと観測できます。都内屈指の身近な星空スポットです。",
+          en: "Ueno Park is a massive cultural forest located in Taito Ward. Despite intense urban light pollution (Bortle 8), by standing near the central fountain plaza or Kaneiji Temple and shielding yourself from direct lamplights, you can clearly spot Orion, the Summer Triangle, Jupiter, and Saturn.",
+          ko: "우에노 공원은 타이토구에 위치한 문화와 자연의 중심지입니다. 도심의 강한 빛공해(보틀 8)가 있지만, 분수 광장이나 간에이지 주변에서 가로등 불빛을 피하면 겨울철 대삼각형, 여름철 대삼각형, 달, 그리고 목성과 토성 같은 밝은 행성들을 훌륭하게 찾아낼 수 있습니다."
+        },
+        tip: {
+          zh: "上野公园的大喷泉广场由于比较开阔，是一个不错的城市避光点。晚上11点公园部分高射路灯熄灭后，星空能见度会小幅上升。",
+          ja: "夜間の大噴水前広場は比較的視野が開けており、余計な街灯を避けやすいためお勧めです。午後11時を過ぎて周囲のビル明かりが減少すると、星の視認性が向上します。",
+          en: "The spacious plaza in front of the Grand Fountain is the best open spot to isolate from immediate glare. Visual clarity improves slightly after 11 PM when skyscraper lights begin to dim.",
+          ko: "대분수 광장 앞은 시야가 넓게 트여 있어 무분별한 조명을 피하기 가장 좋습니다. 밤 11시 이후 주변 빌딩의 소등이 시작되면 별자리가 훨씬 더 눈에 잘 들어옵니다."
+        },
+        mapX: 64,
+        mapY: 39
+      },
+      {
+        id: "shinjuku_gyoen",
+        bortle: 9,
+        altitude: "32m",
+        distance: "1km",
+        bestSeasonKey: "winter",
+        coords: "35.6838° N, 139.7101° E",
+        ratingKey: "ratingHeavyPollution",
+        name: {
+          zh: "新宿御苑/东京都厅 (新宿区)",
+          ja: "新宿御苑・東京都庁周辺 (新宿区)",
+          en: "Shinjuku Gyoen / Tokyo Metro Area",
+          ko: "신주쿠 교엔 / 도청 주변 (신주쿠구)"
+        },
+        description: {
+          zh: "东京都心光污染震中（Bortle 9）。在这里，夜空常年呈现橙红色荧光。肉眼仅能捕获负星等的金星、木星，以及一等亮星（如天狼星、织女一、参宿七）。东京都厅展望台提供了遮光室内，可以借助望远镜观测月面环形山。",
+          ja: "東京都心光害の爆心地エリア（ボートル9）。空全体が夜間もネオンの光で淡くオレンジ色に光ります。肉眼では金星、木星、シリウス、ベガなどの1等星のみが確認可能です。東京都庁展望台からは、天候が良い日に月面のクレーターなどを鮮明に捉えることができます。",
+          en: "The absolute epicenter of Tokyo's light pollution (Bortle 9). The sky glows a warm orange at night. Naked-eye viewing is strictly limited to Venus, Jupiter, and 1st-magnitude stars like Sirius, Betelgeuse, and Vega. Perfect for high-power lunar or planetary telescope observation.",
+          ko: "도쿄 도심 빛공해의 한복판(보틀 9)입니다. 밤하늘이 빌딩 네온사인으로 붉게 물들기 때문에 육안으로는 금성, 목성, 시리우스, 베가와 같은 최상위 1등성만 볼 수 있습니다. 망원경을 사용하면 달의 분화구를 또렷이 관측할 수 있습니다."
+        },
+        tip: {
+          zh: "在市中心观星，关键是要背对霓虹灯或寻找高大建筑物阴影。建议购买折射式便携望远镜在空旷处看月球和行星。",
+          ja: "ビル明かりが直接目に入らない建物の影を探すのがコツです。明るい月や木星、土星を狙って、小型望遠鏡や双眼鏡を使用すると、都心とは思えない宇宙のディテールが楽しめます。",
+          en: "The secret to inner-city stargazing is physical shielding. Hide in the shadow of tall structures so direct street lights don't reach your eyes. Target the moon and bright planets.",
+          ko: "빌딩 불빛이 직접 눈에 들어오지 않도록 건물 그늘을 찾는 것이 중요합니다. 달이나 목성, 토성을 표적으로 소형 망원경이나 쌍안경을 사용해 보십시오."
+        },
+        mapX: 58,
+        mapY: 42
+      },
+      {
+        id: "shibuya_sky",
+        bortle: 9,
+        altitude: "229m",
+        distance: "3.5km",
+        bestSeasonKey: "autumn",
+        coords: "35.6585° N, 139.7018° E",
+        ratingKey: "ratingHeavyPollution",
+        name: {
+          zh: "涩谷天空/涩谷站 (涩谷区)",
+          ja: "SHIBUYA SKY / 渋谷駅周辺 (渋谷区)",
+          en: "Shibuya Sky / Shibuya Crossing",
+          ko: "시부야 스카이 / 시부야역 (시부야구)"
+        },
+        description: {
+          zh: "位于229米高的SHIBUYA SKY露天展望台。尽管涩谷地面的霓虹灯极其刺眼，但这个无死角的半空平台风力强劲，能吹散多余的雾气与PM2.5。在天气极佳的秋夜，站在城市屋脊可以清晰地锁定木星与东方升起的昴星团一角。",
+          ja: "高さ229mに位置する屋外展望空間「SHIBUYA SKY」。地上は日本で最も明るい繁華街ですが、この高度では風が強く大気が澄みやすいため、秋から冬の澄んだ夜には、東から上るすばる（プレアデス星団）や、天高くに輝く木星をダイナミックに捕らえることができます。",
+          en: "An open-air sky deck towering at 229m. Although Shibuya below is blindingly bright, the strong high-altitude winds often clear away smog, revealing bright planets, the Moon, and the winter Pleiades cluster hanging over the neon canyons.",
+          ko: "지상 229m 높이의 야외 스카이 데크 '시부야 스카이'입니다. 지상은 무척 화려하고 밝지만, 높은 고도의 거센 바람이 매연을 날려보내 주어 겨울철 플레이아데스 성단이나 고고하게 빛나는 목성을 역동적으로 담아낼 수 있습니다."
+        },
+        tip: {
+          zh: "需提前预约夜间门票。站在展望台最中央可以尽量远离边缘亮化灯带，让眼睛更好地适应黑暗。",
+          ja: "事前チケットの予約が必要です。展望テラスの中央付近に立ち、手元のイルミネーション照明から目をそらすことで、夜空の明るい恒星を見つけやすくなります。",
+          en: "Requires advance ticket booking. Try to stand at the exact center of the sky stage, away from the glass edge's illuminating LED strips, to allow your pupils to dilate.",
+          ko: "사전 티켓 예약이 필수입니다. 스카이 스테이지 중앙부에 서서 유리 펜스의 강한 조명을 등지고 하늘을 바라보면 밝은 1등성들을 훨씬 쉽게 발견할 수 있습니다."
+        },
+        mapX: 56,
+        mapY: 46
+      },
+      {
+        id: "tokyo_tower",
+        bortle: 9,
+        altitude: "150m",
+        distance: "5km",
+        bestSeasonKey: "winter",
+        coords: "35.6586° N, 139.7454° E",
+        ratingKey: "ratingHeavyPollution",
+        name: {
+          zh: "东京铁塔 / 芝公园 (港区)",
+          ja: "東京タワー・芝公園 (港区)",
+          en: "Tokyo Tower / Shiba Park",
+          ko: "도쿄 타워 / 시바 공원 (미나토구)"
+        },
+        description: {
+          zh: "港区芝公园是东京塔下的静谧绿地。虽然头顶有巨大的红色暖光照射，但宽阔的草坪提供了平视天空的优秀视野。在深夜，当东京塔于午夜12点或凌晨熄灯时，配合清澈的冬风，猎户座会非常壮丽地浮现在红色铁塔背后的夜空中。",
+          ja: "東京タワーのふもとに広がる芝公園は、都会の真ん中で広く夜空を見渡せるオアシスです。タワーのライトアップによる光害はありますが、深夜0時の消灯の瞬間を狙うと、タワーのシルエットの背後に浮かび上がるオリオン座の見事な姿を鑑賞できます。",
+          en: "Shiba Park at the base of Tokyo Tower offers a spacious green getaway. While the tower itself produces immense local illumination, watching the tower's light-off ceremony at midnight reveals the grand winter constellations behind its iconic lattice shadow.",
+          ko: "도쿄 타워 아래 자리한 시바 공원은 도심 속에서 하늘을 널찍이 조망할 수 있는 쉼터입니다. 타워의 강한 조명 영향이 있지만, 밤 12시 소등되는 순간을 노리면 어둠 속에 가려져 있던 오리온자리가 철탑 실루엣 뒤로 웅장하게 떠오르는 장관을 볼 수 있습니다."
+        },
+        tip: {
+          zh: "推荐在铁塔熄灯前15分钟守候在芝公园4号地。熄灯的瞬间，眼睛能立刻捕捉到天空中骤然浮现的闪耀星座。",
+          ja: "深夜の消灯時刻（主に0:00）の10分前には芝公園の芝生エリアに陣取りましょう。消灯した瞬間に、瞳孔が開いて夜空から一気にオリオンの星々が浮き上がります。",
+          en: "Position yourself on Shiba Park's grass fields 10 minutes before the scheduled tower light-off (typically midnight). The instantaneous darkness will make the stars pop out vividly.",
+          ko: "타워 소등 예정 시각(주로 자정) 10분 전에 시바 공원의 잔디 광장에 대기해 보세요. 불빛이 꺼지는 찰나, 눈이 어둠에 적응하며 오리온의 별들이 우수수 나타납니다."
+        },
+        mapX: 60,
+        mapY: 48
+      },
+      {
+        id: "odaiba_seaside",
+        bortle: 8,
+        altitude: "3m",
+        distance: "11km",
+        bestSeasonKey: "summer",
+        coords: "35.6284° N, 139.7725° E",
+        ratingKey: "ratingCityLight",
+        name: {
+          zh: "台场海滨公园 (江东区/港区)",
+          ja: "お台場海浜公園 (港区・江東区)",
+          en: "Odaiba Seaside Park (Koto/Minato)",
+          ko: "오다이바 해변공원 (미나토구/고토구)"
+        },
+        description: {
+          zh: "面向东京湾开阔海面的海滨沙滩。由于东侧和南侧避开了东京最刺眼的建筑密集区，这里拥有极佳的低空东/南向视野。在盛夏夜，可以尝试在这里捕捉刚从地平线上升起的夏季大三角以及闪耀南方的天蝎座心宿二。",
+          ja: "東京湾の広大な海水面を臨む砂浜エリア。東側と南側が開けており、都心の超高層ビル群の直接の光害を遮るため、夏の夜には南東の地平線から昇る天の川銀河の最も明るい中心部やさそり座を捉えるのに最適な条件を備えています。",
+          en: "A beautiful sandy shoreline facing the vast waters of Tokyo Bay. Because the eastern and southern horizons look out towards the dark water instead of dense concrete high-rises, it provides a superb vector for capturing the summer constellations rise.",
+          ko: "도쿄만의 탁 트인 바다를 마주하는 인공 해변입니다. 동쪽과 남쪽이 바다로 열려 있어 도심 빌딩 숲의 직접적인 불빛을 비켜가므로, 여름철 남동쪽 지평선 위로 고개를 드는 전갈자리와 밝은 은하수 심장부를 관측하기 적절합니다."
+        },
+        tip: {
+          zh: "沿着沙滩往最西侧的甲板走，远离商场外立面的巨型LED广告屏，能获得更佳的夜适应效果。",
+          ja: "デックス東京などの商業施設から離れ、自由の女神像よりもさらに奥の砂浜の端に移動すると、人工の不要な明かりから逃れて暗順応を維持できます。",
+          en: "Walk as far west as possible along the beach, away from the shopping mall LED screens, past the Statue of Liberty replica, to maintain your eyes' dark adaptation.",
+          ko: "덱스 도쿄 등 상업시설에서 멀어져 자유의 여신상보다 더 안쪽의 모래사장 끝자락으로 이동하면 인공 조명을 차단하고 별을 보기가 수월해じます."
+        },
+        mapX: 63,
+        mapY: 52
+      },
+
+      // 2. Suburban Tama Area (Bortle 5-7)
+      {
+        id: "mitaka_naoj",
+        bortle: 7,
+        altitude: "58m",
+        distance: "18km",
+        bestSeasonKey: "autumn",
+        coords: "35.6761° N, 139.5376° E",
+        ratingKey: "ratingFair",
+        name: {
+          zh: "三鹰 (国立天文台本部)",
+          ja: "三鷹 国立天文台本部 (三鷹市)",
+          en: "Mitaka (NAOJ Headquarters)",
+          ko: "미타카 국립천문대 본부 (미타카시)"
+        },
+        description: {
+          zh: "这里是日本天文学的圣地，拥有百年历史的圆顶观测室。虽然三鹰市已属于东京近郊（Bortle 7），但天文台内部保留了极佳的生态林区和暗夜防护。在每月的公开观测日，市民可以通过折射望远镜深度探索双星系统、猎户座大星云等高难度深空目标。",
+          ja: "日本のアストロノミーの聖地、国立天文台三鷹キャンパス。武蔵野の豊かな緑に囲まれ、敷地内は光害低減対策が徹底されています（ボートル7）。毎月開催される定例観測会では、歴史ある巨大な望远鏡を用いて、二重星や星雲・星団のダイナミックな姿を体験できます。",
+          en: "The historic headquarters of the National Astronomical Observatory of Japan (NAOJ). Nested inside a preserved forest with active light-pollution control (Bortle 7). Their regular monthly public stargazing events allow visitors to peer through historical large refracting telescopes.",
+          ko: "일본 천문학의 상징적인 성지인 국립천문대 미타카 캠퍼스입니다. 울창한 숲에 둘러싸여 있으며 부지 내 가로등에 광해 방지 대책이 적용되어 있습니다(보틀 7). 정기 관측회에서는 유서 깊은 대형 망원경으로 이중성이나 성운 등을 생생히 감상할 수 있습니다."
+        },
+        tip: {
+          zh: "三鹰天文台定期举办面向大众的免费望远镜公开天体观测会，必须提前在官网申请预约名额。",
+          ja: "毎月2回、50cm公開望遠鏡を使った一般向け「定例観測会」が実施されています。非常に人気があるため、公式サイトでの事前応募スケジュールを必ず確認してください。",
+          en: "NAOJ hosts free public stargazing nights twice a month utilizing their 50cm telescope. Seats fill up instantly, so keep a close eye on their online reservation releases.",
+          ko: "매월 2회 50cm 주망원경을 사용한 일반인 대상 '정기 관측회'가 열립니다. 대단히 인기가 많으므로 공식 웹사이트 예약 일정을 꼭 선점해야 합니다."
+        },
+        mapX: 45,
+        mapY: 45
+      },
+      {
+        id: "takao_san",
+        bortle: 5,
+        altitude: "599m",
+        distance: "45km",
+        bestSeasonKey: "winter",
+        coords: "35.6251° N, 139.2435° E",
+        ratingKey: "ratingFair",
+        name: {
+          zh: "高尾山 (八王子市)",
+          ja: "高尾山 山頂広場 (八王子市)",
+          en: "Mount Takao Summit (Hachioji)",
+          ko: "타카오산 정상 광장 (하치오지시)"
+        },
+        description: {
+          zh: "作为全球年登山量第一的山峰，海拔599米的高尾山在夜间摇身一变成为东京最方便、高性价比的半暗天空观测地（Bortle 5）。山顶开阔的观景台将东侧东京市区的漫天红光挡在身后，向西看去，可以清晰地识别仙女座大星系（M31）和璀璨的北极星。",
+          ja: "年間登山者数世界一を誇る高尾山（標高599m）は、夜間になると極めて手軽な「星降る山」へと変貌します（ボートル5）。山頂広場からは、東の東京方面の眩しい光害を山自体が遮るため、西側の漆黒の空に輝くアンドロメダ銀河や、冬の澄んだ満天の星々をはっきりと観測できます。",
+          en: "As one of the world's most visited mountains, Mt. Takao (599m) offers a premium high-altitude suburban escape (Bortle 5). The broad mountain shield effectively blocks Tokyo's eastern skyglow, opening up a dark western viewport ideal for resolving the Andromeda Galaxy (M31).",
+          ko: "연간 등산객 수 세계 1위를 자랑하는 타카오산(해발 599m)은 밤이 되면 도심 인근 최고의 별 관측 명소로 탈바꿈합니다(보틀 5). 정상 광장에서는 동쪽 도심 광해를 산체가 막아주기 때문에 서쪽 하늘에 박힌 안드로메다 은하와 겨울철 밤하늘을 선명하게 관측할 수 있습니다."
+        },
+        tip: {
+          zh: "缆车在深夜不运行，若选择夜爬必须佩戴高流明头灯，尽量选择满月之外的新月夜前往，避开山顶食堂周围的地面灯光。",
+          ja: "夜間のケーブルカーは運行していないため、徒歩での登山には強力なヘッドランプと防寒着が必須です。山頂のビジターセンター周辺の暗闇に陣取るのがベストです。",
+          en: "Cable cars do not operate at midnight. Night hiking requires robust headlamps and warm thermal layers. Pitch your telescopes near the dark clearings adjacent to the visitor center.",
+          ko: "야간에는 케이블카가 운행하지 않으므로 걸어 올라가야 하며, 고성능 헤드랜턴과 방한복이 필수입니다. 방문자 센터 옆 그늘진 어두운 구역에 자리를 잡는 것이 좋습니다."
+        },
+        mapX: 28,
+        mapY: 55
+      },
+      {
+        id: "showa_memorial",
+        bortle: 6,
+        altitude: "85m",
+        distance: "32km",
+        bestSeasonKey: "spring",
+        coords: "35.7145° N, 139.3942° E",
+        ratingKey: "ratingFair",
+        name: {
+          zh: "昭和纪念公园 (立川市)",
+          ja: "国営昭和記念公園周辺 (立川市)",
+          en: "Showa Memorial Park Area (Tachikawa)",
+          ko: "국영 쇼와 기념공원 주변 (타치카와시)"
+        },
+        description: {
+          zh: "立川市的昭和纪念公园占地达180公顷。虽然地处繁华的立川（Bortle 6），但公园周边巨大的林带和空旷的草地提供了一个极佳的阻隔带。春夜，这里是观测北斗七星、寻找牧夫座大角星和室女座角宿一所组成的“春季大曲线”的理想场所。",
+          ja: "国営昭和記念公園（立川市）は広大な緑地を誇ります。周囲のビル灯りからはやや離れており（ボートル6）、園外の開けた歩道や残堀川沿いからは、春の夜空を飾る「春の大曲線」（北斗七星・アークトゥルス・スピカ）が見事な円弧を描く様子を観察できます。",
+          en: "An expansive 180-hectare national park in Tachikawa. Although situated in a bustling suburban hub (Bortle 6), the sheer scale of the park shields the core grassy fields from commercial lights. Highly popular for observing the giant Spring Arc sweeping across the zenith.",
+          ko: "타치카와시에 위치한 180만㎡ 규모의 국립 공원입니다. 다마 지구의 중심 도시에 있으면서도 광활한 부지가 도시 불빛을 밀어내어 시야가 매우 시원합니다(보틀 6). 봄철 밤하늘을 가로지르는 '봄의 대곡선'을 찾기에 안성맞춤인 장소입니다."
+        },
+        tip: {
+          zh: "公园内部夜间闭园，可在公园外围的‘残堀川’沿岸堤坝或南侧昭岛方向的空旷区域架设三脚架进行观测。",
+          ja: "閉園時間後は入園できないため、公園外周の「残堀川」沿いの土手や、南側の昭島市側の開けた歩道などが夜間撮影・観測の隠れた定番ポイントとなっています。",
+          en: "The park interior closes at dusk. Night owls and photographers frequently gather along the open embankments of the 'Zanbori River' or the southern borders near Akishima.",
+          ko: "공원은 해가 진 후 문을 닫으므로 공원 외곽의 '잔보리강' 둑길이나 남쪽 아키시마시 방향의 탁 트인 보도에서 밤하늘을 관측하고 촬영하는 것을 추천합니다."
+        },
+        mapX: 38,
+        mapY: 45
+      },
+
+      // 3. Western Mountains & Island Reserves (Bortle 1-4)
+      {
+        id: "okutama",
+        bortle: 3,
+        altitude: "530m",
+        distance: "75km",
+        bestSeasonKey: "autumn",
+        coords: "35.7981° N, 139.0270° E",
+        ratingKey: "ratingGood",
+        name: {
+          zh: "奥多摩湖",
+          ja: "奥多摩湖 (奥多摩町)",
+          en: "Lake Okutama",
+          ko: "오쿠타마 호수"
+        },
+        description: {
+          zh: "奥多摩湖位于东京西部山区，是距离市区最近的1级暗夜观测级圣地之一（Bortle 3）。群山环抱阻挡了东侧都市的通天红光，湖面倒影星空极为震撼。这里是天文摄影爱好者进行深空星云观测的绝佳首选。",
+          ja: "東京西部の本格的な山岳地帯に位置する奥多摩湖は、都心から最も近い星空観測の聖地です。周囲の山々が都会の光害を物理的にシャットアウトし（ボートル3）、澄んだ静寂の湖面に映る満天の星々は、まさに東京とは思えない別世界です。",
+          en: "Located in the rugged western mountains of Tokyo, Lake Okutama is one of the closest pristine dark-sky preserves to the metropolis (Bortle 3). The steep mountain walls effectively act as a fortress wall shielding the basin from Tokyo's persistent skyglow.",
+          ko: "도쿄 서부 깊은 산악 지대에 자리한 오쿠타마 호수는 도심에서 가장 가까운本格 별 관측지입니다. 주변 산맥이 도시의 빛공해를 물리적으로 확실히 차단해주어(보틀 3), 맑고 고요한 호수에 담기는 별무리는 경이로운 아름다움을 자아냅니다."
+        },
+        tip: {
+          zh: "建议自驾前往。湖畔的‘小河内水坝’周边有大型停车场且建有观景台，视野开阔安全，但深秋起夜间气温骤降需带足御寒衣物。",
+          ja: "車でのアクセスが必須です。「小河内ダム」の展望広場や周辺の無料駐車場は視界が開けていて安全ですが、深夜は非常に冷え込むため、厚手の冬装備を持参してください。",
+          en: "Access by car is highly recommended. The parking lots adjacent to the Ogouchi Dam offer open views and paved ground. Always pack heavy winter parkas, as temperature drops sharply near the water reservoir.",
+          ko: "자동차를 통한 접근이 필수적입니다. '오고우치 댐' 전망 광장과 주차 공간은 넓고 안전하지만, 밤 깊으면 기온이 매섭게 내려가므로 두꺼운 패딩 등 겨울 옷을 챙겨야 합니다."
+        },
+        mapX: 18,
+        mapY: 42
+      },
+      {
+        id: "mitake",
+        bortle: 4,
+        altitude: "929m",
+        distance: "65km",
+        bestSeasonKey: "winter",
+        coords: "35.7828° N, 139.1501° E",
+        ratingKey: "ratingFair",
+        name: {
+          zh: "御岳山",
+          ja: "御岳山 (青梅市)",
+          en: "Mount Mitake (Ome)",
+          ko: "미타케산 (오메시)"
+        },
+        description: {
+          zh: "属于秩父多摩甲斐国立公园，是东京知名的灵山。由于海拔高达929米，空气稀薄清澈，能看清漫天繁星。下方能远眺多摩地区微弱的城市灯火，形成极富层次感的梦幻反差。",
+          ja: "秩父多摩甲斐国立公園に属する関東屈指の霊山。標高929mの山頂付近は空気が非常に薄く澄んでおり（ボートル4）、眼下に広がる多摩地域の宝石のような夜景と、頭上に広がる圧倒的な星空のコントラストが芸術的です。",
+          en: "A revered sacred peak within the Chichibu-Tama-Kai National Park. At 929m elevation, the atmosphere is thin and incredibly transparent (Bortle 4), orchestrating a breathtaking visual contrast between the glowing grid of Tokyo below and the glittering galaxy above.",
+          ko: "치치부타마카이 국립공원에 속한 간토의 유서 깊은 산입니다. 해발 929m의 정상 부근은 공기가 맑고 투명하여(보틀 4), 발아래 수놓아지는 주택가 야경과 머리 위에 펼쳐지는 은하수의 경계가 한 폭의 그림과 같습니다."
+        },
+        tip: {
+          zh: "可以搭乘御岳登山铁道缆车上山。推荐在山顶的传统“宿坊（寺院旅馆）”住宿一晚，即可无后顾之忧地通宵观星。",
+          ja: "日中は御岳山ケーブルカーが利用できます。山頂の歴史ある「宿坊」に宿泊すれば、深夜を過ぎても周囲の安全な環境で落ち着いて星空を観測できます。",
+          en: "The cable car operates during daytime. Booking an overnight stay at a traditional mountain temple 'Shukubo' lodging is highly recommended for worry-free all-night starry observation.",
+          ko: "낮 동안에는 미타케산 케이블카를 타고 편하게 이동할 수 있습니다. 산 정상의 역사 깊은 전통 숙소 '슈쿠보'에 머무르면 시간에 쫓기지 않고 안전하게 밤하늘을 만끽할 수 있습니다."
+        },
+        mapX: 30,
+        mapY: 45
+      },
+      {
+        id: "hinohara",
+        bortle: 3,
+        altitude: "1000m",
+        distance: "70km",
+        bestSeasonKey: "spring",
+        coords: "35.7332° N, 139.0118° E",
+        ratingKey: "ratingGood",
+        name: {
+          zh: "桧原村 (都民之森)",
+          ja: "檜原村 都民の森 (桧原村)",
+          en: "Hinohara Village (Tominhonmori)",
+          ko: "히노하라 마을 (도민의 숲)"
+        },
+        description: {
+          zh: "桧原村是东京都本州岛部分唯一的‘村’级行政区。这里的“都民之森”森林茂密、海拔高，完美隔离了多摩市区的光害。夜幕降临后，静谧幽深的山林让星空显得格外亮丽。",
+          ja: "島嶼部を除く東京都の本州唯一の「村」である檜原村。標高1000m近くに位置する「都民の森」は、周囲の深い森林が光害を吸収するため、本州最上級の暗闇が保証されます（ボートル3）。空が深く、春季でも星団の光束まで捉えられます。",
+          en: "The last remaining rural village on mainland Tokyo. Nestled inside a vast forest reserve at an elevation of 1,000m. The dense, deep woodland structure naturally absorbs local illumination, creating a dark sanctuary ideal for astrophotography.",
+          ko: "섬 지역을 제외한 도쿄도 본토의 유일한 '마을(村)'인 히노하라촌. 해발 1000m 부근의 '도민의 숲'은 깊은 삼림이 주변 광해를 흡수해주어, 도쿄 본토 최고 수준의 깊고 어두운 밤하늘(보틀 3)을 선사합니다."
+        },
+        tip: {
+          zh: "入夜后山路极其狭窄、弯道多且完全没有路灯，自驾时请务必减速慢行，严防突现的原生小鹿或狸猫。",
+          ja: "夜間の林道はカーブが連続し、野生のシカやタヌキが頻繁に飛び出します。運転スピードを十分に落とし、ライトをハイビームにして安全運転を徹底してください。",
+          en: "Winding forest roads are completely unlit at night and native wildlife like wild boars and deer frequently cross. Keep your vehicle under low speed and high-beam.",
+          ko: "야간 산악 도로는 무척 어둡고 굴곡이 심하며 야생 사슴이나 멧돼지가 자주 나타납니다. 속도를 충분히 줄이고 하이빔을 켠 채 안전 운전에 만전을 기하십시오."
+        },
+        mapX: 24,
+        mapY: 58
+      },
+      {
+        id: "oshima",
+        bortle: 2,
+        altitude: "758m",
+        distance: "120km",
+        bestSeasonKey: "summer",
+        coords: "34.7291° N, 139.3971° E",
+        ratingKey: "ratingGreat",
+        name: {
+          zh: "伊豆大岛 (三原山)",
+          ja: "伊豆大島 三原山裏砂漠 (大島町)",
+          en: "Izu Oshima (Mt. Mihara)",
+          ko: "이주 오시마 (미하라산)"
+        },
+        description: {
+          zh: "从东京竹芝客运码头乘高速喷射船即可轻松抵达。岛中央巍然耸立的活火山‘三原山’拥有一片壮丽的黑色火山熔岩荒原（裏砂漠）。在这里举目四望，360度全无死角、毫无光害遮挡的银河令人恍若登月。",
+          ja: "竹芝桟橋から高速ジェット船で1時間45分。島の中央に広がる広大な火山砂漠「裏砂漠」は、国土地理院の地図に唯一「砂漠」と表記される場所です。黒い溶岩原に寝そべって見上げる星空（ボートル2）は、人工の灯りが完全に消失した宇宙空間そのものです。",
+          en: "Only 1 hr 45 min away via high-speed jet ferry. Mt. Mihara's 'Urasabaku' (Behind Desert) is Japan's only officially charted desert. Lying on black volcanic ash and gazing at the brilliant dome of stars (Bortle 2) evokes a surreal lunar landing sensation.",
+          ko: "도쿄 다케시바 선착장에서 고속 제트선으로 1시간 45분 거리에 있는 섬입니다. 섬 중앙의 '우라사바쿠(뒷사막)'는 검은 화산재로 이루어진 묵시록적인 황무지로, 인공 광원이 전무한 360도 은하수(보틀 2)를 한눈에 담을 수 있습니다."
+        },
+        tip: {
+          zh: "火山荒原风势极大、地势高，即使是盛夏深夜体感温度也只有10度左右，必须准备防风御寒外套。务必带好高流明手电筒以防迷路。",
+          ja: "裏砂漠は夜間、強風と遮るもののない真っ暗闇に包まれます。視界が極端に狭くなるため高輝度のライトを持参し、真夏でも防寒用のフリースやジャケットを必ず携行してください。",
+          en: "The black deserts are highly windswept and pitch dark. Finding your path is extremely difficult without high-lumen flashlights. Pack windbreakers and thermal jackets, even in summer.",
+          ko: "우라사바쿠 사막지대는 거센 바람과 칠흑 같은 암흑으로 덮여 길을 잃기 쉽습니다. 강력한 플래시를 준비하고, 한여름철에도 따뜻한 긴 옷을 가져가셔야 합니다."
+        },
+        mapX: 52,
+        mapY: 82
+      },
+      {
+        id: "hachijo",
+        bortle: 1,
+        altitude: "854m",
+        distance: "287km",
+        bestSeasonKey: "spring",
+        coords: "33.1165° N, 139.7915° E",
+        ratingKey: "ratingPerfect",
+        name: {
+          zh: "八丈岛",
+          ja: "八丈島 南原千畳敷 (八丈町)",
+          en: "Hachijojima",
+          ko: "하치조지마"
+        },
+        description: {
+          zh: "这是一座距离东京本岛287公里处的亚热带活火山岛。火山锥‘八丈富士’山顶以及‘南原千叠敷’黑溶岩海岸是极佳的观星阵地。极度清澈、远离大陆污染的天空让遥远的南天星斗与闪烁星云均触手可及。",
+          ja: "東京から南へ287km、亜熱帯の活火山島。ゴツゴツとした黒い溶岩が海岸に広がる「南原千畳敷」からは、太平洋の地平線に直接沈み込む星座や、都心では見えない遥か南天の星々（ボートル1）を肉眼で鮮明に識別できます。",
+          en: "A sub-tropical volcanic island located 287km off Honshu mainland. The 'Nanbara Senjojiki' coast, characterized by its jagged black volcanic formations, looks straight into the absolute deep ocean sky (Bortle 1), bringing faint southern star clusters into naked-eye visibility.",
+          ko: "도쿄 본토에서 남쪽으로 287km 떨어진 화산섬입니다. 기괴한 검은 기암괴석이 펼쳐진 '남바라 센조지키' 해안가는 태평양 수평선을 마주하고 있어, 육지 광해에서 완벽하게 해방된 우주 본연의 별빛(보틀 1)을 고스란히 투사합니다."
+        },
+        tip: {
+          zh: "南原千叠敷的海浪声巨响配合天幕群星极为浪漫，但海风汹涌。建议规划在晴朗微风的春夏季前往，并去海岛温泉放松身心。",
+          ja: "波が溶岩に砕ける音を聞きながらの星空は圧倒的な臨場感があります。海風が強いので三脚はしっかりと重しで固定し、昼間は島の極上の源泉かけ流し温泉を堪能するのがお勧めです。",
+          en: "The sound of heavy waves crashing against volcanic rocks under a cosmic ceiling is deeply emotional. Secure your tripod with heavy sandbags against the ocean wind. Enjoy the local hot springs by day.",
+          ko: "거친 파도가 바위에 부딪히는 소리와 쏟아지는 은하수의 조화는 압도적인 전율을 선사합니다. 해풍이 강하므로 삼각대에 무게추를 꼭 설치하고, 낮 시간에는 유명한 섬 온천을 즐겨보세요."
+        },
+        mapX: 72,
+        mapY: 86
+      },
+      {
+        id: "ogasawara",
+        bortle: 1,
+        altitude: "300m",
+        distance: "1000km",
+        bestSeasonKey: "summer",
+        coords: "27.0945° N, 142.1914° E",
+        ratingKey: "ratingPerfect",
+        name: {
+          zh: "小笠原群岛 (父岛)",
+          ja: "小笠原諸島 父島 (小笠原村)",
+          en: "Ogasawara Islands (Chichijima)",
+          ko: "오가사와라 제도 (치치지마)"
+        },
+        description: {
+          zh: "被誉为‘东洋科隆群岛’的世界自然遗产。距离东京市区达1000公里，拥有全日本最顶级的1级极致暗夜星空。当处于无月深夜时，密密麻麻的庞大星海与深邃星云甚至能在大地上投射出淡淡的星光人影。",
+          ja: "東京から約1,000km南に隔絶された世界自然遺産の楽園。人工の光害が「完全ゼロ」のボートル1を誇り、満天の天の川の光輝が、月が出ていなくても大地に自分の淡い影を落とすほどの信じられない星の密度を体感できます。",
+          en: "A UNESCO World Heritage site situated 1,000km south of Honshu. Features an absolute zero-pollution Class 1 sky. On a moonless clear night, the core luminosity of the Milky Way is so profound that it literally casts faint shadows on the ground.",
+          ko: "도쿄에서 약 1,000km 떨어진 세계자연유산의 청정 낙원입니다. 문명의 빛공해가 완전히 전무한 최고의 밤하늘(보틀 1)을 자랑하며, 그믐밤에는 쏟아지는 은하수 빛만으로 땅 위에 옅은 그림자가 생길 정도의 경이로운 우주적 체험을 할 수 있습니다."
+        },
+        tip: {
+          zh: "需要乘坐唯一的定期邮轮‘小笠原丸’，单程航行长达24小时。这是一次一生一次、洗涤心灵的观星终极圣殿朝圣之旅。",
+          ja: "東京・竹芝から唯一の交通手段である「おがさわら丸」に乗り、片道24時間の船旅を乗り越える必要があります。全天文家が生涯に一度は訪れるべき一生ものの聖地です。",
+          en: "The only access is the legendary Ogasawaramaru ocean liner from Tokyo Pier, taking exactly 24 hours one-way. This is the ultimate pilgrimage for any dedicated celestial observer.",
+          ko: "다케시바 선착장에서 편도 24시간 동안 정기선 '오가사와라마루'를 타야만 도달할 수 있는 대장정입니다. 평생에 단 한 번은 꼭 경험해야 할 별자리 순례의 최종 종착지입니다."
+        },
+        mapX: 88,
+        mapY: 90
+      }
+    ];
+
+    // ==========================================
+    // SEASONS CONSTELLATIONS DATA
+    // ==========================================
+    const seasonalConstellations = [
+      // SPRING
+      {
+        id: "ursa_major",
+        season: "spring",
+        rating: "★★★★★",
+        name: {
+          zh: "大熊座 (北斗七星)",
+          ja: "おおぐま座 (北斗七星)",
+          en: "Ursa Major (Great Bear)",
+          ko: "큰곰자리 (북두칠성)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/大熊座",
+          ja: "https://ja.wikipedia.org/wiki/おおぐま座",
+          en: "https://en.wikipedia.org/wiki/Ursa_Major",
+          ko: "https://ko.wikipedia.org/wiki/큰곰자리"
+        },
+        starDetails: {
+          zh: "北斗七星勺柄指引着春季大曲线。它是寻找北极星最重要的地标。",
+          ja: "おたまの形をした北斗七星が春の大曲線の起点となり、北極星を見つける最重要の目印です。",
+          en: "Contains the world-famous Big Dipper asterism, which traces out the stunning Spring Arc.",
+          ko: "북두칠성을 포함하고 있으며, 봄철 밤하늘의 거대한 대곡선을 그리는 가장 대표적인 길잡이 별자리입니다."
+        },
+        stars: [
+          { name: "Dubhe (天枢)", x: 45, y: 30, r: 4 },
+          { name: "Merak (天璇)", x: 42, y: 38, r: 3 },
+          { name: "Phecda (天玑)", x: 50, y: 40, r: 3 },
+          { name: "Megrez (天权)", x: 52, y: 34, r: 2.5 },
+          { name: "Alioth (玉衡)", x: 60, y: 30, r: 4.5 },
+          { name: "Mizar (开阳)", x: 66, y: 26, r: 4 },
+          { name: "Alkaid (摇光)", x: 72, y: 22, r: 4 }
+        ]
+      },
+      {
+        id: "leo",
+        season: "spring",
+        rating: "★★★★☆",
+        name: {
+          zh: "狮子座",
+          ja: "しし座",
+          en: "Leo",
+          ko: "사자자리"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/狮子座",
+          ja: "https://ja.wikipedia.org/wiki/しし座",
+          en: "https://en.wikipedia.org/wiki/Leo_(constellation)",
+          ko: "https://ko.wikipedia.org/wiki/사자자리"
+        },
+        starDetails: {
+          zh: "反向问号形状代表雄狮的头部，最亮的一等星‘轩辕十四’恰好坐落在狮子心脏的位置。",
+          ja: "「裏返しのハテナマーク」に似た形が獅子の頭を構成し、一等星レグルスが力強く輝きます。",
+          en: "Recognized by its distinctive reverse-question mark (sickle) and the dazzling heart star Regulus.",
+          ko: "물음표를 뒤집어 놓은 듯한 사자의 머리(낫 모양)와 사자의 심장에 해당하는 청백색 일등성 '레굴루스'가 선명합니다."
+        },
+        stars: [
+          { name: "Regulus (轩辕十四)", x: 50, y: 65, r: 5 },
+          { name: "Denebola (五帝座一)", x: 75, y: 60, r: 4 },
+          { name: "Algieba (轩辕十一)", x: 58, y: 53, r: 3.5 },
+          { name: "Zosma (太微右垣五)", x: 69, y: 55, r: 3 }
+        ]
+      },
+      // SUMMER
+      {
+        id: "lyra",
+        season: "summer",
+        rating: "★★★★★",
+        name: {
+          zh: "天琴座 (织女星)",
+          ja: "こと座 (ベガ)",
+          en: "Lyra (Vega)",
+          ko: "거문고자리 (직녀성)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/天琴座",
+          ja: "https://ja.wikipedia.org/wiki/こと座",
+          en: "https://en.wikipedia.org/wiki/Lyra",
+          ko: "https://ko.wikipedia.org/wiki/거문고자리"
+        },
+        starDetails: {
+          zh: "古老的小琴，拥有全天第二亮的蓝色璀璨恒星‘织女一’。它是著名的夏季大三角之首。",
+          ja: "夏の夜空で最も純白に輝く織姫星（ベガ）を擁し、夏季大三角を形成する極めて美しい星座です。",
+          en: "Home to Vega, the brilliant blue-white star that spearheads the majestic Summer Triangle.",
+          ko: "칠월칠석의 주인공인 '직녀성(베가)'을 품고 있으며, 은하수를 사이에 둔 독수리자리의 견우성과 여름 대삼각형을 이룹니다."
+        },
+        stars: [
+          { name: "Vega (织女一)", x: 48, y: 35, r: 6 },
+          { name: "Sheliak (渐台二)", x: 45, y: 46, r: 3 },
+          { name: "Sulafat (渐台三)", x: 53, y: 49, r: 3 }
+        ]
+      },
+      {
+        id: "scorpius",
+        season: "summer",
+        rating: "★★★★★",
+        name: {
+          zh: "天蝎座 (心宿二)",
+          ja: "さそり座 (アンタレス)",
+          en: "Scorpius (Antares)",
+          ko: "전갈자리 (안타레스)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/天蝎座",
+          ja: "https://ja.wikipedia.org/wiki/さそり座",
+          en: "https://en.wikipedia.org/wiki/Scorpius",
+          ko: "https://ko.wikipedia.org/wiki/전갈자리"
+        },
+        starDetails: {
+          zh: "盘踞在南方银河之中的庞大蝎子，蝎子心脏是那颗闪烁着神秘红光的超巨星‘心宿二’。",
+          ja: "南の天の川の最も濃い場所に横たわるサソリ。その心臓には妖しく赤く燃える超巨星アンタレスが宿ります。",
+          en: "A gorgeous southern constellation tracing a giant 'S' shape. Antares glows fiery red at its heart.",
+          ko: "남쪽 은하수 속에 붉게 타오르는 전갈의 심장 '안타레스'를 중심으로 대형 S자 형태를 그리는 여름의 제왕입니다."
+        },
+        stars: [
+          { name: "Antares (心宿二)", x: 48, y: 75, r: 5.5 },
+          { name: "Shaula (尾宿八)", x: 35, y: 90, r: 4 },
+          { name: "Graffias (房宿四)", x: 56, y: 65, r: 3 }
+        ]
+      },
+      // AUTUMN
+      {
+        id: "pegasus",
+        season: "autumn",
+        rating: "★★★★☆",
+        name: {
+          zh: "飞马座 (秋季四边形)",
+          ja: "ペガスス座 (秋の四辺形)",
+          en: "Pegasus (Great Square)",
+          ko: "페가수스자리 (가을철 대사각형)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/飞马座",
+          ja: "https://ja.wikipedia.org/wiki/ペガスス座",
+          en: "https://en.wikipedia.org/wiki/Pegasus_(constellation)",
+          ko: "https://ko.wikipedia.org/wiki/페가수스자리"
+        },
+        starDetails: {
+          zh: "由四颗明亮的恒星连成的巨大‘秋季四边形’。它是探寻秋季星空其余星座的骨干坐标。",
+          ja: "秋の夜空の中心に位置する巨大な「四辺形」を構成し、秋の星空探訪の頼もしい土台となります。",
+          en: "Dominates the autumn sky with its vast, easy-to-spot four-star Pegasus Square.",
+          ko: "가을 밤하늘의 뼈대가 되는 광활한 사각형 광장을 연출하며, 신화 속 날개 달린 천마를 나타냅니다."
+        },
+        stars: [
+          { name: "Markab (室宿一)", x: 40, y: 40, r: 4.5 },
+          { name: "Scheat (室宿二)", x: 40, y: 65, r: 4.5 },
+          { name: "Algenib (壁宿一)", x: 65, y: 40, r: 4 },
+          { name: "Alpheratz (壁宿二)", x: 65, y: 65, r: 4.5 }
+        ]
+      },
+      {
+        id: "cassiopeia",
+        season: "autumn",
+        rating: "★★★★★",
+        name: {
+          zh: "仙后座 (W星)",
+          ja: "カシオペヤ座 (W字星)",
+          en: "Cassiopeia",
+          ko: "카시오페아자리 (W자형)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/仙后座",
+          ja: "https://ja.wikipedia.org/wiki/カシオペヤ座",
+          en: "https://en.wikipedia.org/wiki/Cassiopeia_(constellation)",
+          ko: "https://ko.wikipedia.org/wiki/카시오페아자리"
+        },
+        starDetails: {
+          zh: "著名的‘W’型星座，处于拱极天区，是寻找北极星的重要指路牌。",
+          ja: "北天に浮かぶなじみ深い「W字型」の星座。北極星の位置を割り出すのに大活躍します。",
+          en: "An easily recognized circumpolar 'W' asterism positioned directly opposite the Big Dipper.",
+          ko: "북극성을 감싸고 돌며 항상 밤하늘에 빛나는 아름다운 'W'자 모양의 북쪽 카리스마 왕비 자리입니다."
+        },
+        stars: [
+          { name: "Segin (策)", x: 30, y: 45, r: 3 },
+          { name: "Ruchbah (阁道三)", x: 40, y: 55, r: 3.5 },
+          { name: "Tsih (策)", x: 50, y: 42, r: 4.2 },
+          { name: "Schedar (王良四)", x: 60, y: 52, r: 4.5 },
+          { name: "Caph (王良一)", x: 70, y: 40, r: 4 }
+        ]
+      },
+      // WINTER
+      {
+        id: "orion",
+        season: "winter",
+        rating: "★★★★★",
+        name: {
+          zh: "猎户座 (参宿四 & 参宿七)",
+          ja: "オリオン座 (ベテルギウス & リゲル)",
+          en: "Orion (The Hunter)",
+          ko: "오리온자리 (베텔게우스 & 리겔)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/猎户座",
+          ja: "https://ja.wikipedia.org/wiki/オリオン座",
+          en: "https://en.wikipedia.org/wiki/Orion_(constellation)",
+          ko: "https://ko.wikipedia.org/wiki/오리온자리"
+        },
+        starDetails: {
+          zh: "全天最耀眼的星座霸主。著名的猎户腰带三颗星，两旁分布着璀璨红超巨星参宿四与冰蓝超巨星参宿七。",
+          ja: "冬の王者。綺麗に並ぶ三つ星と、赤く輝く超巨星ベテルギウス、青白く鋭い超巨星リゲルが織りなす全天一の美。和名は鼓星。",
+          en: "The unquestioned titan of the winter night sky. Famous for Orion's Belt, red Betelgeuse, and blue Rigel.",
+          ko: "밤하늘의 황제. 나란히 늘어선 삼태성(허리띠)과 초신성 폭발을 앞둔 적색거성 베텔게우스, 푸르고 눈부신 청색거성 리겔이 호위하는 최고 위엄의 겨울철 별자리입니다."
+        },
+        stars: [
+          { name: "Betelgeuse (参宿四)", x: 38, y: 35, r: 6 },
+          { name: "Rigel (参宿七)", x: 62, y: 75, r: 6 },
+          { name: "Bellatrix (参宿五)", x: 38, y: 75, r: 4 },
+          { name: "Alnilam (参宿二)", x: 50, y: 55, r: 4 },
+          { name: "Alnitak (参宿一)", x: 48, y: 51, r: 3.8 },
+          { name: "Mintaka (参宿三)", x: 52, y: 59, r: 3.8 }
+        ]
+      },
+      {
+        id: "taurus",
+        season: "winter",
+        rating: "★★★★☆",
+        name: {
+          zh: "金牛座 (毕宿五 & 昴星团)",
+          ja: "おうし座 (アルデバラン & プレアデス)",
+          en: "Taurus (Aldebaran & Pleiades)",
+          ko: "황소자리 (알데바란 & 플레이아데스)"
+        },
+        wikiUrls: {
+          zh: "https://zh.wikipedia.org/wiki/金牛座",
+          ja: "https://ja.wikipedia.org/wiki/おうし座",
+          en: "https://en.wikipedia.org/wiki/Taurus_(constellation)",
+          ko: "https://ko.wikipedia.org/wiki/황소자리"
+        },
+        starDetails: {
+          zh: "公牛愤怒的双角。它怀抱着如蓝色碎钻般迷人的‘七姐妹’昴星团（Pleiades）以及血橙色的巨星‘毕宿五’。",
+          ja: "荒ぶる雄牛の目にはオレンジの一等星アルデバラン。その背中には、美しい青い星の集まり「すばる（プレアデス星団）」を背負っています。",
+          en: "Portrays a charging bull. Houses the fiery red-giant Aldebaran and the spectacular blue Pleiades star cluster (Seven Sisters).",
+          ko: "화가 나 돌진하는 황소의 붉은 눈빛인 알데바란과, 가을 겨울 밤하늘의 꽃이라 불리는 푸른 보석 묶음인 '플레이아데스(성단/수바루)'를 장식하고 있습니다."
+        },
+        stars: [
+          { name: "Aldebaran (毕宿五)", x: 45, y: 55, r: 5 },
+          { name: "Elnath (五车五)", x: 65, y: 30, r: 4 },
+          { name: "Pleiades Cluster (昴星团)", x: 30, y: 40, r: 5 }
+        ]
+      }
+    ];
+
+    // ==========================================
+    // APP CENTRAL STATE MANAGEMENT
+    // ==========================================
+    let currentLang = 'ja'; // Default: Japanese!
+    let activeSeason = 'summer'; // Default Season
+    let observationHour = 22; // 22 PM
+    let pollutionFilterLimit = 9; // Display all default to let users search urban core
+    let activeSpot = stargazingSpots[0]; // Default: Ueno Park
+    let activeSearchQuery = "";
+    
+    // Focused celestial node state
+    let activeFocusedStar = null;
+    let activeConstellationId = null;
+
+    // ==========================================
+    // CORE UI BINDINGS & TRANSLATION PIPELINE
+    // ==========================================
+    function translateUI() {
+      const text = translations[currentLang];
+
+      // Static labels update
+      document.getElementById('app-title').textContent = text.appTitle;
+      document.getElementById('app-subtitle').textContent = text.appSubtitle;
+      document.getElementById('guide-intro').textContent = text.guideIntro;
+      document.getElementById('filter-spots-title').innerHTML = `<i data-lucide="sliders" class="w-4 h-4 text-cyan-400"></i>${text.filterSpots}`;
+      document.getElementById('season-label').textContent = text.season;
+      document.getElementById('time-label').innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>${text.timeOfNight}`;
+      document.getElementById('pollution-label').innerHTML = `<i data-lucide="activity" class="w-3.5 h-3.5 text-purple-400"></i>${text.lightPollutionLevel}`;
+      document.getElementById('map-view-title').textContent = text.mapView;
+      document.getElementById('mountains-label').textContent = `🏔️ ${text.westernMountains}`;
+      document.getElementById('city-glow-label').textContent = `🏢 ${text.tokyoBayGlow}`;
+      document.getElementById('islands-label').textContent = `🌐 ${text.islandInsetText}`;
+      document.getElementById('search-input').placeholder = text.searchPlaceholder;
+      document.getElementById('list-header-text').textContent = text.spotsHeader;
+      document.getElementById('sim-title').innerHTML = `<i data-lucide="compass" class="w-4 h-4 text-cyan-400"></i>${text.interactiveSimulator}`;
+      document.getElementById('sim-guide-desc').textContent = text.skyViewerInstructions;
+      document.getElementById('constellation-header-title').textContent = text.constellationsHeader;
+      document.getElementById('active-spot-lbl').textContent = text.activeSpotLabel;
+      document.getElementById('spot-blocked-title').textContent = "表示制限中 | Spot Restricted";
+      document.getElementById('spot-blocked-desc').textContent = text.highPollutionWarning;
+      document.getElementById('footer-copyright').textContent = text.copyright;
+
+      // Season labels update inside buttons
+      document.querySelectorAll('.season-text').forEach(span => {
+        const key = span.getAttribute('data-key');
+        span.textContent = text[key];
+      });
+
+      // Update Slider Display Indicators
+      updateTimeDisplay(observationHour);
+      updatePollutionLimitDisplay(pollutionFilterLimit);
+
+      // Reload interactive segments to update names
+      renderSpotsList();
+      renderMapPins();
+      renderCelestialSimulator();
+      renderConstellationCards();
+      renderSpotDetailsCard();
+
+      // Refresh icons
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // EVENT TRIGGERS & MUTATOR FUNCTIONS
+    // ==========================================
+    function switchLanguage(langKey) {
+      currentLang = langKey;
+      document.getElementById('active-lang-text').textContent = 
+        langKey === 'ja' ? '日本語' :
+        langKey === 'zh' ? '简体中文' :
+        langKey === 'en' ? 'English' : '한국어';
+      
+      // Close dropdown
+      document.getElementById('lang-dropdown').classList.add('hidden');
+      translateUI();
+    }
+
+    // Dropdown toggle
+    document.getElementById('lang-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = document.getElementById('lang-dropdown');
+      dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+      document.getElementById('lang-dropdown').classList.add('hidden');
+    });
+
+    function setSeason(seasonKey) {
+      activeSeason = seasonKey;
+      
+      // Update Button Highlight Visuals
+      document.querySelectorAll('.season-btn').forEach(btn => {
+        btn.className = "season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-slate-800/50 hover:bg-slate-800 text-slate-400";
+      });
+      const targetBtn = document.getElementById(`btn-${seasonKey}`);
+      targetBtn.className = "season-btn py-2 px-1 rounded-xl text-xs font-bold transition-all duration-300 flex flex-col items-center gap-1 bg-gradient-to-b from-purple-600 to-indigo-700 text-white shadow-lg border border-purple-400/20";
+      
+      // Reset lock-ons
+      activeFocusedStar = null;
+      activeConstellationId = null;
+
+      renderCelestialSimulator();
+      renderConstellationCards();
+      lucide.createIcons();
+    }
+
+    function updateTime(val) {
+      observationHour = parseInt(val);
+      updateTimeDisplay(observationHour);
+
+      // Live rotation effect of celestial dome
+      const rotationAngle = (observationHour - 22) * 15;
+      document.getElementById('sky-rotation-dome').style.transform = `rotate(${rotationAngle}deg)`;
+    }
+
+    function updateTimeDisplay(hourNum) {
+      const text = translations[currentLang];
+      let formatted = "";
+      if (hourNum > 24) {
+        formatted = text.hoursAM.replace('{h}', hourNum - 24);
+      } else if (hourNum === 24) {
+        formatted = text.hoursAM.replace('{h}', 12);
+      } else {
+        const normalHour = hourNum - 12;
+        formatted = text.hoursPM.replace('{h}', normalHour === 0 ? 12 : normalHour);
+      }
+      document.getElementById('time-display').textContent = formatted;
+    }
+
+    function updatePollutionLimit(val) {
+      pollutionFilterLimit = parseInt(val);
+      updatePollutionLimitDisplay(pollutionFilterLimit);
+      
+      // Sync map visual ambient filter glow
+      const glowElement = document.getElementById('ambient-map-glow');
+      glowElement.style.opacity = (pollutionFilterLimit * 0.1).toString();
+
+      renderSpotsList();
+      renderMapPins();
+      renderSpotDetailsCard();
+    }
+
+    function updatePollutionLimitDisplay(val) {
+      const disp = document.getElementById('bortle-display');
+      if (val == 9) {
+        disp.textContent = translations[currentLang].allLevels;
+      } else {
+        disp.textContent = `Bortle ≤ ${val}`;
+      }
+    }
+
+    function handleSearch(val) {
+      activeSearchQuery = val.trim().toLowerCase();
+      renderSpotsList();
+      renderMapPins();
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = "";
+      activeSearchQuery = "";
+      renderSpotsList();
+      renderMapPins();
+    }
+
+    // ==========================================
+    // RENDER SEGMENTS: SPOTS LIST & PINS
+    // ==========================================
+    function renderSpotsList() {
+      const listContainer = document.getElementById('spots-list');
+      listContainer.innerHTML = "";
+      
+      const filtered = stargazingSpots.filter(spot => {
+        const matchesBortle = spot.bortle <= pollutionFilterLimit;
+        const matchesQuery = spot.name[currentLang].toLowerCase().includes(activeSearchQuery) || 
+                             spot.id.toLowerCase().includes(activeSearchQuery);
+        return matchesBortle && matchesQuery;
+      });
+
+      document.getElementById('spots-count').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-8 bg-slate-900/20 rounded-xl border border-dashed border-slate-800">
+            <i data-lucide="alert-circle" class="w-6 h-6 text-slate-500 mx-auto mb-2"></i>
+            <p class="text-xs text-slate-400">${translations[currentLang].noSpotsFound}</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(spot => {
+        const isSelected = activeSpot.id === spot.id;
+        const wrapper = document.createElement('button');
+        wrapper.className = `w-full text-left p-3.5 rounded-xl border transition-all duration-300 flex items-center justify-between ${
+          isSelected 
+            ? 'bg-gradient-to-r from-purple-950/40 to-slate-900/60 border-purple-500/40 shadow-md' 
+            : 'bg-slate-900/40 hover:bg-slate-900/70 border-slate-800/80'
+        }`;
+        wrapper.onclick = () => selectSpot(spot);
+
+        wrapper.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold text-xs ${
+              isSelected ? 'bg-cyan-950 text-cyan-300 border border-cyan-800/40' : 'bg-slate-800 text-slate-400'
+            }">
+              B${spot.bortle}
+            </div>
+            <div>
+              <h4 class="text-xs font-bold transition-colors ${isSelected ? 'text-cyan-400' : 'text-slate-200'}">
+                ${spot.name[currentLang]}
+              </h4>
+              <p class="text-[10px] text-slate-400 font-mono mt-0.5">
+                ${spot.coords} • ${spot.altitude}
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-col items-end text-right font-mono text-[10px] text-slate-500 gap-1">
+            <span class="bg-slate-850 px-1.5 py-0.5 rounded border border-slate-800 text-slate-300 font-semibold">
+              ${translations[currentLang][spot.bestSeasonKey]}
+            </span>
+            <span>${spot.distance}</span>
+          </div>
+        `;
+        listContainer.appendChild(wrapper);
+      });
+    }
+
+    function renderMapPins() {
+      const pinLayer = document.getElementById('map-pins-layer');
+      pinLayer.innerHTML = "";
+
+      stargazingSpots.forEach(spot => {
+        const isFilteredOut = spot.bortle > pollutionFilterLimit;
+        const isSelected = activeSpot.id === spot.id;
+        
+        // Skip from map pins if search query active and doesn't match
+        if (activeSearchQuery) {
+          const matchesQuery = spot.name[currentLang].toLowerCase().includes(activeSearchQuery) || 
+                               spot.id.toLowerCase().includes(activeSearchQuery);
+          if (!matchesQuery) return;
+        }
+
+        const btn = document.createElement('button');
+        btn.style.left = `${spot.mapX}%`;
+        btn.style.top = `${spot.mapY}%`;
+        btn.className = `absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 z-20 ${
+          isFilteredOut ? 'opacity-20 cursor-not-allowed scale-75' : 'opacity-100 hover:scale-110'
+        }`;
+        
+        if (isFilteredOut) {
+          btn.disabled = true;
+        } else {
+          btn.onclick = () => selectSpot(spot);
+        }
+
+        btn.innerHTML = `
+          ${isSelected ? '<span class="absolute -inset-2 rounded-full bg-cyan-400/20 animate-ping"></span>' : ''}
+          <div class="p-1 rounded-full transition-transform duration-300 ${
+            isSelected 
+              ? 'bg-gradient-to-tr from-cyan-400 to-blue-500 scale-125 shadow-lg border border-white/20' 
+              : 'bg-slate-800 border border-slate-700'
+          }">
+            <i data-lucide="map-pin" class="w-3 h-3 ${isSelected ? 'text-slate-900' : 'text-slate-300'}"></i>
+          </div>
+          <span class="absolute top-full mt-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] px-1.5 py-0.5 rounded transition-all font-mono tracking-tight ${
+            isSelected 
+              ? 'bg-cyan-900/90 text-cyan-200 border border-cyan-700/60 font-bold z-30' 
+              : 'bg-slate-900/85 text-slate-400 pointer-events-none'
+          }">
+            ${spot.name[currentLang].split(' ')[0]} (B${spot.bortle})
+          </span>
+        `;
+        pinLayer.appendChild(btn);
+      });
+      lucide.createIcons();
+    }
+
+    function selectSpot(spot) {
+      activeSpot = spot;
+      
+      // Auto adjust pollution slider limit if selected spot would be hidden
+      if (spot.bortle > pollutionFilterLimit) {
+        pollutionFilterLimit = spot.bortle;
+        document.getElementById('pollution-slider').value = pollutionFilterLimit;
+        updatePollutionLimitDisplay(pollutionFilterLimit);
+      }
+
+      // Reset focused stars
+      activeFocusedStar = null;
+      activeConstellationId = null;
+
+      renderSpotsList();
+      renderMapPins();
+      renderCelestialSimulator();
+      renderSpotDetailsCard();
+    }
+
+    // ==========================================
+    // RENDER SEGMENT: CELESTIAL SKY SIMULATOR
+    // ==========================================
+    function renderCelestialSimulator() {
+      const starsLayer = document.getElementById('sky-stars-layer');
+      const svgLines = document.getElementById('sky-svg-lines');
+      
+      starsLayer.innerHTML = "";
+      svgLines.innerHTML = "";
+
+      // Calibration Header Update
+      document.getElementById('badge-location-name').textContent = activeSpot.name[currentLang];
+      
+      // CITY POLLUTION TRIGGER: If Bortle is heavy (Class >= 7), show city warning and mask stars
+      const warningBanner = document.getElementById('city-pollution-warning');
+      const text = translations[currentLang];
+      
+      if (activeSpot.bortle >= 7) {
+        warningBanner.classList.remove('hidden');
+        document.getElementById('city-warning-text').textContent = text.skySimCityWarning;
+      } else {
+        warningBanner.classList.add('hidden');
+      }
+
+      // Nebula visibility matching clean atmosphere
+      const nebula = document.getElementById('sim-nebula');
+      if (activeSpot.bortle <= 3) {
+        nebula.style.opacity = "1";
+      } else if (activeSpot.bortle <= 5) {
+        nebula.style.opacity = "0.4";
+      } else {
+        nebula.style.opacity = "0";
+      }
+
+      const activeConstellations = seasonalConstellations.filter(c => c.season === activeSeason);
+
+      // Render Stars and Lines
+      activeConstellations.forEach(constellation => {
+        const isTargeted = activeConstellationId === constellation.id;
+        
+        // Lines rendering matching light pollution constraints
+        // Heavy city light hides constellation faint lines entirely, unless targeted
+        const shouldDrawLines = isTargeted || (activeSpot.bortle <= 6);
+        const lineOpacity = isTargeted ? "0.9" : (0.7 - (activeSpot.bortle * 0.08));
+
+        if (shouldDrawLines) {
+          for (let i = 0; i < constellation.stars.length - 1; i++) {
+            const star = constellation.stars[i];
+            const nextStar = constellation.stars[i+1];
+            
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", `${star.x}%`);
+            line.setAttribute("y1", `${star.y}%`);
+            line.setAttribute("x2", `${nextStar.x}%`);
+            line.setAttribute("y2", `${nextStar.y}%`);
+            line.setAttribute("stroke", isTargeted ? "#22d3ee" : "#312e81");
+            line.setAttribute("stroke-width", isTargeted ? "1.5" : "0.75");
+            line.setAttribute("stroke-opacity", lineOpacity);
+            svgLines.appendChild(line);
+          }
+        }
+
+        // Stars rendering
+        constellation.stars.forEach(star => {
+          // CITY LIGHT POLLUTION CONSTRAINT: Faint stars with low magnitude (small radius) disappear in heavy glow
+          // Only high magnitude stars (radius >= 4.5) survive in Bortle 7, 8, 9 cities
+          const isStarVisible = (activeSpot.bortle <= 5) || (star.r >= 4.5) || isTargeted;
+          
+          if (!isStarVisible) return;
+
+          const btn = document.createElement('button');
+          btn.className = "absolute -translate-x-1/2 -translate-y-1/2 group z-30";
+          btn.style.left = `${star.x}%`;
+          btn.style.top = `${star.y}%`;
+          
+          const isStarFocused = activeFocusedStar && activeFocusedStar.name === star.name;
+
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            focusCelestialStar(star, constellation);
+          };
+
+          btn.innerHTML = `
+            <span class="absolute -inset-2 rounded-full transition-all duration-300 ${
+              isStarFocused ? 'bg-cyan-500/30 scale-125 animate-pulse' : 'bg-transparent group-hover:bg-purple-500/20'
+            }"></span>
+            <div class="rounded-full transition-all duration-300 ${
+              isStarFocused 
+                ? 'bg-cyan-300 scale-125 ring-2 ring-cyan-400 shadow-[0_0_10px_#22d3ee]' 
+                : 'bg-white group-hover:bg-cyan-300 ring-1 ring-slate-700'
+            }" style="width: ${star.r * 1.5}px; height: ${star.r * 1.5}px;"></div>
+            <span class="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 bg-slate-950/90 text-slate-300 text-[8px] font-mono font-medium px-1 py-0.5 rounded border border-slate-800 transition-all ${
+              isStarFocused ? 'text-cyan-200 border-cyan-700/50 scale-105' : 'opacity-60 scale-95 group-hover:opacity-100'
+            }">
+              ${star.name}
+            </span>
+          `;
+          starsLayer.appendChild(btn);
+        });
+      });
+
+      renderCelestialFocusDetails();
+    }
+
+    function focusCelestialStar(star, constellation) {
+      activeFocusedStar = {
+        name: star.name,
+        r: star.r,
+        parentName: constellation.name[currentLang],
+        parentWiki: constellation.wikiUrls[currentLang],
+        details: constellation.starDetails[currentLang],
+        rating: constellation.rating
+      };
+      activeConstellationId = constellation.id;
+      
+      renderCelestialSimulator();
+    }
+
+    function renderCelestialFocusDetails() {
+      const box = document.getElementById('star-focus-box');
+      const text = translations[currentLang];
+
+      if (!activeFocusedStar) {
+        box.innerHTML = `
+          <p id="click-to-explore-desc" class="text-xs text-slate-400 leading-relaxed flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-purple-400 animate-pulse"></i>
+            ${text.clickToExplore}
+          </p>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-fade-in">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-[9px] uppercase font-mono font-bold text-cyan-400 tracking-widest bg-cyan-950/50 px-2 py-0.5 rounded">
+                ${text.starName}
+              </span>
+              <span class="text-xs text-slate-400 font-medium">
+                (${text.constellation}: ${activeFocusedStar.parentName})
+              </span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-50 flex items-center gap-2">
+              ${activeFocusedStar.name}
+              <span class="text-yellow-400 text-xs">${activeFocusedStar.rating}</span>
+            </h4>
+            <p class="text-xs text-slate-300 leading-relaxed mt-1 font-light">
+              ${activeFocusedStar.details}
+            </p>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0 w-full md:w-auto">
+            <a href="${activeFocusedStar.parentWiki}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-1.5 text-xs text-center font-bold px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-550 text-white transition-all shadow-md">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              ${text.viewWiki}
+            </a>
+            <button onclick="resetCelestialFocus()" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-800 text-slate-400 hover:text-white transition-colors">
+              ${text.closeDetails}
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function resetCelestialFocus() {
+      activeFocusedStar = null;
+      activeConstellationId = null;
+      renderCelestialSimulator();
+    }
+
+    // ==========================================
+    // RENDER SEGMENT: SEASON CONSTELLATION CARDS
+    // ==========================================
+    function renderConstellationCards() {
+      const grid = document.getElementById('constellation-cards-grid');
+      grid.innerHTML = "";
+
+      const activeConstellations = seasonalConstellations.filter(c => c.season === activeSeason);
+
+      activeConstellations.forEach(constellation => {
+        const isTargeted = activeConstellationId === constellation.id;
+        const card = document.createElement('button');
+        card.className = `text-left p-4 rounded-xl border transition-all duration-300 flex flex-col justify-between ${
+          isTargeted 
+            ? 'bg-slate-950/80 border-cyan-500/40 ring-1 ring-cyan-500/10' 
+            : 'bg-slate-950/30 hover:bg-slate-950/60 border-slate-800/60'
+        }`;
+        
+        card.onclick = () => {
+          focusCelestialStar(constellation.stars[0], constellation);
+        };
+
+        card.innerHTML = `
+          <div class="w-full flex justify-between items-start mb-2">
+            <span class="text-xs font-bold text-cyan-400">
+              ${constellation.name[currentLang]}
+            </span>
+            <span class="text-yellow-400 font-mono text-xs">
+              ${constellation.rating}
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-light leading-relaxed mb-3 line-clamp-2">
+            ${constellation.starDetails[currentLang]}
+          </p>
+          <div class="w-full flex items-center justify-between mt-auto">
+            <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              ${constellation.stars.length} Major Stars
+            </span>
+            <span class="text-[10px] text-cyan-400 flex items-center gap-1 font-bold">
+              Focus <i data-lucide="compass" class="w-3 h-3"></i>
+            </span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // RENDER SEGMENT: PROFILE GUIDE CARD
+    // ==========================================
+    function renderSpotDetailsCard() {
+      const text = translations[currentLang];
+      
+      // Text inputs mapping
+      document.getElementById('detail-spot-name').textContent = activeSpot.name[currentLang];
+      document.getElementById('detail-bortle-class').textContent = `${text.bortleLevel} ${activeSpot.bortle}`;
+      document.getElementById('detail-spot-desc').textContent = activeSpot.description[currentLang];
+      document.getElementById('detail-altitude').textContent = activeSpot.altitude;
+      document.getElementById('detail-distance').textContent = activeSpot.distance;
+      document.getElementById('detail-best-season').textContent = text[activeSpot.bestSeasonKey];
+      document.getElementById('detail-coords').textContent = activeSpot.coords.split(',')[0];
+      document.getElementById('travel-tips-heading').innerHTML = `<i data-lucide="compass" class="w-4 h-4 text-purple-300"></i>${text.travelTipTitle}`;
+      document.getElementById('detail-spot-tip').textContent = activeSpot.tip[currentLang];
+
+      // Update Labels
+      document.querySelectorAll('.detail-label-text').forEach(span => {
+        const key = span.getAttribute('data-key');
+        span.textContent = text[key];
+      });
+
+      // Filter constraints blocker display
+      const blocker = document.getElementById('spot-filter-blocker');
+      if (activeSpot.bortle > pollutionFilterLimit) {
+        blocker.classList.remove('hidden');
+      } else {
+        blocker.classList.add('hidden');
+      }
+    }
+
+    // ==========================================
+    // INITIAL BOOTSTRAP
+    // ==========================================
+    window.onload = function() {
+      // Load standard lucide indicators
+      lucide.createIcons();
+
+      // Initiate default Japanese language pipeline
+      translateUI();
+    };
+
+  </script>
+</body>
+</html>
